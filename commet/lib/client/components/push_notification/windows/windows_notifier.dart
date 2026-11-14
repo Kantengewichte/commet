@@ -10,7 +10,6 @@ import 'package:commet/main.dart';
 import 'package:commet/utils/common_strings.dart';
 import 'package:commet/utils/event_bus.dart';
 import 'package:commet/utils/shortcuts_manager.dart';
-import 'package:desktop_notifications/desktop_notifications.dart';
 import 'package:flutter/services.dart';
 import 'package:media_kit/media_kit.dart';
 import 'package:path_provider/path_provider.dart';
@@ -27,8 +26,6 @@ class WindowsNotifier implements Notifier {
 
   @override
   bool get needsToken => false;
-
-  static NotificationsClient client = NotificationsClient();
 
   @override
   Future<void> init() async {
