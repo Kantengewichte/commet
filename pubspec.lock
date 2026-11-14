@@ -379,14 +379,6 @@ packages:
       url: "https://github.com/commetchat/mixin-flutter-plugins.git"
     source: git
     version: "0.8.4"
-  desktop_notifications:
-    dependency: transitive
-    description:
-      name: desktop_notifications
-      sha256: "6d92694ad6e9297a862c5ff7dd6b8ff64c819972557754769f819d2209612927"
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.6.3"
   desktop_webview_window:
     dependency: "direct overridden"
     description:
@@ -1205,14 +1197,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.0.1"
-  listen:
-    dependency: transitive
-    description:
-      name: listen
-      sha256: "47501a08016a43fcad79252439d723f50f14f88fa7bfd8a177e0a417e5c9e1f2"
-      url: "https://pub.dev"
-    source: hosted
-    version: "1.0.1"
   livekit_client:
     dependency: transitive
     description:
@@ -2082,10 +2066,10 @@ packages:
     dependency: transitive
     description:
       name: test_api
-      sha256: "0a10344e901e5b2e63819567951cb6a06673ed6b84f40462188ff5a0c41f371f"
+      sha256: "2a122cbe059f8b610d3a5415f42e255b6c17b1f21eee1d960f31080237fb4f11"
       url: "https://pub.dev"
     source: hosted
-    version: "0.7.14"
+    version: "0.7.12"
   timezone:
     dependency: transitive
     description:

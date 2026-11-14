@@ -14,7 +14,6 @@ import 'package:commet/utils/image/lod_image.dart';
 import 'package:commet/utils/image_utils.dart';
 import 'package:commet/utils/notification_utils.dart';
 import 'package:commet/utils/shortcuts_manager.dart';
-import 'package:desktop_notifications/desktop_notifications.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_local_notifications_linux/src/model/hint.dart' as notif;
@@ -27,8 +26,6 @@ import 'dart:ui' as ui;
 class LinuxNotifier implements Notifier {
   @override
   bool get hasPermission => true;
-
-  static NotificationsClient client = NotificationsClient();
 
   @override
   bool get enabled => true;
