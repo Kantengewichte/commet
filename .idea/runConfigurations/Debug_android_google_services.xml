@@ -1,6 +1,6 @@
 <component name="ProjectRunConfigurationManager">
   <configuration default="false" name="Debug android (google services)" type="FlutterRunConfigurationType" factoryName="Flutter">
-    <option name="additionalArgs" value="-d android-arm64 --dart-define=PLATFORM=android --dart-define=BUILD_MODE=debug" />
+    <option name="additionalArgs" value="--dart-define=PLATFORM=android --dart-define=BUILD_MODE=debug" />
     <option name="envs">
       <entry key="ORG_GRADLE_PROJECT_disable-abi-filtering" value="true" />
     </option>
