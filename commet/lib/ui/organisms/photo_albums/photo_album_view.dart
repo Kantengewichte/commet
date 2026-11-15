@@ -370,20 +370,17 @@ class _PhotoAlbumViewState extends State<PhotoAlbumView> {
           )
           .toList();
     } else {
-      var files = await FilePicker.platform.pickFiles(
-        allowMultiple: true,
-        withReadStream: true,
-      );
-      if (files == null) return;
+      List<PlatformFile> files = await FilePicker.pickFiles();
+      if (files.isEmpty) return;
 
-      photos = files.files
+      photos = files
           .map(
             (e) => PickedPhoto(
               filepath: e.path,
               name: e.name,
               getBytes: () async {
                 var result = List<int>.empty(growable: true);
-                await for (final data in e.readStream!) {
+                await for (final data in e.readAsByteStream()) {
                   print("Read ${data.length} bytes from file");
                   result.addAll(data);
                 }
