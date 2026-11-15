@@ -51,7 +51,6 @@
             "name": "Debug android",
             "request": "launch",
             "type": "dart",
-            "deviceId": "android-arm64",
             "program": "commet/lib/main.dart",
             "toolArgs": [
                 "--dart-define",
@@ -68,7 +67,6 @@
             "name": "Debug android (google services)",
             "request": "launch",
             "type": "dart",
-            "deviceId": "android-arm64",
             "program": "commet/lib/main.dart",
             "toolArgs": [
                 "--dart-define",

@@ -1,3 +1,6 @@
+#!/bin/bash
+set -euo pipefail
+
 PROJECT_PATH="$(git rev-parse --show-toplevel)/commet/"
 PATH="$PROJECT_PATH/../.fvm/flutter_sdk/bin/:$PATH"
 PATH="$HOME/.cargo/bin:$PATH"
