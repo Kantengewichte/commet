@@ -39,7 +39,7 @@ class UpdateChecker {
     const String key = "name";
 
     var url = Uri.parse(
-      "https://api.github.com/repos/StefanW279/commet/releases/latest",
+      "https://api.github.com/repos/Kantengewichte/commet/releases/latest",
     );
 
     var response = await http.get(url);

@@ -40,9 +40,9 @@ To build, you require [Flutter](https://flutter.dev), currently v3.47.9
 This repo currently has a monorepo structure, containing two flutter projects: Commet and Tiamat. Commet is the main client, and Tiamat is a sort of wrapper around Material with some extra goodies, which is used to maintain a consistent style across the app. Tiamat may eventually be moved to its own repo, but for now it is maintained here for ease of development.
 ## Building
 > [!TIP]
-> If you are using ArchLinux and you want to build the entire application locally we have created some buildscripts, found at [commet/buildscripts](https://github.com/StefanW279/commet/tree/main/commet/buildscripts).
+> If you are using ArchLinux and you want to build the entire application locally we have created some buildscripts, found at [commet/buildscripts](https://github.com/Kantengewichte/commet/tree/main/commet/buildscripts).
 > 
-> There is also another [README](https://github.com/StefanW279/commet/tree/main/commet/buildscripts/README.md) which goes more into detail what is needed to get these buildscripts to work.
+> There is also another [README](https://github.com/Kantengewichte/commet/tree/main/commet/buildscripts/README.md) which goes more into detail what is needed to get these buildscripts to work.
 > 
 > The build scripts are intended to build the same application code as our published releases. Build results may vary depending on the build environment and configuration.
 
