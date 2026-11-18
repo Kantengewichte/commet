@@ -2315,10 +2315,10 @@ packages:
     dependency: transitive
     description:
       name: vodozemac
-      sha256: "272870cb6b394499fd34e5dfe8efa819dfa388e2713140f36257b712e149ea8c"
+      sha256: "4099e87058bf7ed910e22943bcc05db229f733ac05a700e5903722be7e62fcd1"
       url: "https://pub.dev"
     source: hosted
-    version: "0.9.0"
+    version: "0.9.1"
   wakelock_plus:
     dependency: transitive
     description:
