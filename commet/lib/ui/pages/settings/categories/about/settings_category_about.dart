@@ -69,7 +69,7 @@ class SettingsCategoryAbout implements SettingsCategory {
               text: "Source Code",
               recognizer: TapGestureRecognizer()
                 ..onTap = () => LinkUtils.open(
-                  Uri.parse("https://github.com/StefanW279/commet"),
+                  Uri.parse("https://github.com/Kantengewichte/commet"),
                   context: context,
                 ),
             ),
@@ -82,7 +82,7 @@ class SettingsCategoryAbout implements SettingsCategory {
               recognizer: TapGestureRecognizer()
                 ..onTap = () => LinkUtils.open(
                   Uri.parse(
-                    "https://github.com/StefanW279/commet/blob/main/LICENSE",
+                    "https://github.com/Kantengewichte/commet/blob/main/LICENSE",
                   ),
                   context: context,
                 ),

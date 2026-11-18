@@ -806,7 +806,7 @@ jobs:
 
             echo "Updating Flatpak"
             echo "Downloading latest Flatpak Release..."
-            wget -q -O /tmp/commet.flatpak "https://github.com/StefanW279/commet/releases/latest/download/chat.commet.commetapp.flatpak"
+            wget -q -O /tmp/commet.flatpak "https://github.com/Kantengewichte/commet/releases/latest/download/chat.commet.commetapp.flatpak"
 
             if [ ! -f /tmp/commet.flatpak ]; then
               echo "Error: File not found after Download"
@@ -853,7 +853,7 @@ jobs:
             cd ${{ secrets.FDROID_PATH }}/repo
 
             echo "Downloading latest APK Release..."
-            wget -q -O ${{ secrets.FDROID_PATH }}/repo/commet-android-google-services-${{ github.event.release.tag_name }}.apk https://github.com/StefanW279/commet/releases/latest/download/commet-android-google-services-arm64.apk
+            wget -q -O ${{ secrets.FDROID_PATH }}/repo/commet-android-google-services-${{ github.event.release.tag_name }}.apk https://github.com/Kantengewichte/commet/releases/latest/download/commet-android-google-services-arm64.apk
             
             cd ${{ secrets.FDROID_PATH }}
 
