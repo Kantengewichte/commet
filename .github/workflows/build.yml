@@ -281,7 +281,7 @@ jobs:
       - name: Bypass degraded Ubuntu mirror
         run: |
           grep -Eq '^https://archive\.ubuntu\.com/ubuntu/([[:space:]]|$)' /etc/apt/apt-mirrors.txt
-          sudo sed -i -E '\@^https?://azure\.archive\.ubuntu\.com/ubuntu/([[:space:]]|$)@d' /etc/apt/apt-mirrors.txt
+          sudo sed -i -E '\@^https?://azure\.archive\.ubuntu\.com/ubuntu/([[:space:]]|$)@d; \@^https?://[^/]+\.ec2\.archive\.ubuntu\.com/ubuntu/([[:space:]]|$)@d' /etc/apt/apt-mirrors.txt
           cat /etc/apt/apt-mirrors.txt
 
       - name: Setup Tools
@@ -367,7 +367,7 @@ jobs:
       - name: Bypass degraded Ubuntu mirror
         run: |
           grep -Eq '^https://archive\.ubuntu\.com/ubuntu/([[:space:]]|$)' /etc/apt/apt-mirrors.txt
-          sudo sed -i -E '\@^https?://azure\.archive\.ubuntu\.com/ubuntu/([[:space:]]|$)@d' /etc/apt/apt-mirrors.txt
+          sudo sed -i -E '\@^https?://azure\.archive\.ubuntu\.com/ubuntu/([[:space:]]|$)@d; \@^https?://[^/]+\.ec2\.archive\.ubuntu\.com/ubuntu/([[:space:]]|$)@d' /etc/apt/apt-mirrors.txt
           cat /etc/apt/apt-mirrors.txt
 
       - name: Setup Tools
@@ -446,7 +446,7 @@ jobs:
       - name: Bypass degraded Ubuntu mirror
         run: |
           grep -Eq '^https://archive\.ubuntu\.com/ubuntu/([[:space:]]|$)' /etc/apt/apt-mirrors.txt
-          sudo sed -i -E '\@^https?://azure\.archive\.ubuntu\.com/ubuntu/([[:space:]]|$)@d' /etc/apt/apt-mirrors.txt
+          sudo sed -i -E '\@^https?://azure\.archive\.ubuntu\.com/ubuntu/([[:space:]]|$)@d; \@^https?://[^/]+\.ec2\.archive\.ubuntu\.com/ubuntu/([[:space:]]|$)@d' /etc/apt/apt-mirrors.txt
           cat /etc/apt/apt-mirrors.txt
 
       - name: Setup Tools
@@ -508,7 +508,7 @@ jobs:
       - name: Bypass degraded Ubuntu mirror
         run: |
           grep -Eq '^https://archive\.ubuntu\.com/ubuntu/([[:space:]]|$)' /etc/apt/apt-mirrors.txt
-          sudo sed -i -E '\@^https?://azure\.archive\.ubuntu\.com/ubuntu/([[:space:]]|$)@d' /etc/apt/apt-mirrors.txt
+          sudo sed -i -E '\@^https?://azure\.archive\.ubuntu\.com/ubuntu/([[:space:]]|$)@d; \@^https?://[^/]+\.ec2\.archive\.ubuntu\.com/ubuntu/([[:space:]]|$)@d' /etc/apt/apt-mirrors.txt
           cat /etc/apt/apt-mirrors.txt
 
       - name: Setup Tools
