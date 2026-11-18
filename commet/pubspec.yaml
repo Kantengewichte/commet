@@ -88,7 +88,7 @@ dependencies:
   drift: ^2.35.4
   archive: ^4.7.1
   exif: ^3.3.0
-  image: ^4.13.0
+  image: ^4.13.1
   livekit_client: ^2.13.2
   flutter_webrtc: ^1.6.3
   file_picker: ^10.2.0
