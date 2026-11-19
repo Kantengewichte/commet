@@ -55,7 +55,6 @@ import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import 'package:tiamat/config/style/theme_changer.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:tiamat/config/style/theme_dark.dart';
-import 'package:desktop_webview_window/desktop_webview_window.dart';
 import 'package:tiamat/tiamat.dart' as tiamat;
 
 final GlobalKey<NavigatorState> navigator = GlobalKey();
@@ -140,10 +139,6 @@ void main(List<String> args) async {
 
   if (args.contains("--unifiedpush-bg")) {
     unifiedPushEntry();
-    return;
-  }
-
-  if (runWebViewTitleBarWidget(args)) {
     return;
   }
 

@@ -92,7 +92,7 @@ dependencies:
   livekit_client: ^2.13.2
   flutter_webrtc: ^1.6.3
   file_picker: ^13.3.3
-  flutter_web_auth_2: ^6.0.0-alpha.0
+  flutter_web_auth_2: ^6.0.0
   receive_intent: ^0.2.8
   flutter_shortcuts_new: ^2.0.0
   flutter_vodozemac: ^0.9.1
@@ -161,18 +161,6 @@ dependency_overrides:
       url: https://github.com/Kantengewichte/tray_manager.git
       ref: commet
       path: packages/tray_manager
-
-  ## Fixes https://github.com/MixinNetwork/flutter-plugins/issues/457
-  desktop_webview_window:
-    git:
-      url: https://github.com/commetchat/mixin-flutter-plugins.git
-      ref: webview-patch
-      path: ./packages/desktop_webview_window
-
-  # livekit_client:
-  #   git:
-  #     url: https://github.com/commetchat/livekit-client-sdk-flutter.git
-  #     ref: hkdf
 
 dev_dependencies: 
   drift_dev: ^2.35.3
