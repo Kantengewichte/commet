@@ -139,7 +139,7 @@ dependencies:
 
 
 dependency_overrides:
-  dbus: ^0.8.0
+  dbus: ^0.8.1
   pointycastle: ^4.0.0
   package_config: ^3.0.0
   ## For inline-reply 
