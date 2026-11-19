@@ -14,46 +14,52 @@ jobs:
     name: Integration Test
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout  ┏━┓ ︵ /(^.^/)
+      - name: Checkout
         uses: actions/checkout@v7
         with:
           submodules: 'true'
         
-      - name: Setup Flutter  ╰(✿˙ᗜ˙)੭━☆ﾟ.*･｡ﾟ
+      - name: Setup Flutter
         uses: subosito/flutter-action@v2.23.0
         with:
           flutter-version: '3.47.9'
           channel: 'stable'
 
-      - name: Setup Tools  ᕙ|” ◉ ◡ ◉ ”|ᕗ
+      - name: Bypass degraded Ubuntu mirror
+        run: |
+          grep -Eq '^https://archive\.ubuntu\.com/ubuntu/([[:space:]]|$)' /etc/apt/apt-mirrors.txt
+          sudo sed -i -E '\@^https?://azure\.archive\.ubuntu\.com/ubuntu/([[:space:]]|$)@d; \@^https?://[^/]+\.ec2\.archive\.ubuntu\.com/ubuntu/([[:space:]]|$)@d' /etc/apt/apt-mirrors.txt
+          cat /etc/apt/apt-mirrors.txt
+
+      - name: Setup Tools
         run: |
           sudo apt-get update -y
           sudo apt-get install -y ninja-build libgtk-3-dev libmpv-dev mpv ffmpeg libmimalloc-dev 
 
-      - name: Start Synapse  [◯ ‸ ◯]
+      - name: Start Synapse
         run: |
           cd $PROJECT_PATH
           scripts/integration-server-synapse.sh
 
-      - name: Configure Synapse  ╰[ ⁰﹏⁰ ]╯
+      - name: Configure Synapse
         run: |
           cd $PROJECT_PATH
           scripts/integration-prepare-homeserver.sh
 
-      - name: Configure Flutter (∩｀-´)⊃━☆ﾟ.*･｡ﾟ
+      - name: Configure Flutter
         run: flutter config --enable-linux-desktop
         
-      - name: Code Generation __φ(．．;)
+      - name: Code Generation
         run: |
           cd $PROJECT_PATH
           dart run scripts/codegen.dart
           
-      - name: Run Unit Tests  ε=ε=┌( >_<)┘
+      - name: Run Unit Tests
         run: |
           cd $PROJECT_PATH
           scripts/unit-test.sh
 
-      - name: Run Integration Tests  ─=≡Σ((( つ＞＜)つ
+      - name: Run Integration Tests
         run: |
           cd $PROJECT_PATH
           export DISPLAY=:99
