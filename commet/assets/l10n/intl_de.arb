@@ -3301,5 +3301,11 @@
         "description": "Bezeichnung für den Bereich mit den Raummitgliedern in den Raumeinstellungen",
         "type": "text",
         "placeholders": {}
+    },
+    "changeTooltip": "Text ändern",
+    "@changeTooltip": {
+        "description": "Tooltip für die Schaltfläche zum Ändern von Text in den Raumeinstellungen",
+        "type": "text",
+        "placeholders": {}
     }
 }

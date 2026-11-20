@@ -3127,5 +3127,11 @@
         "description": "Label for the room members section in the room settings",
         "type": "text",
         "placeholders": {}
+    },
+    "changeTooltip": "Change text",
+    "@changeTooltip": {
+        "description": "Tooltip for the change button in the room settings",
+        "type": "text",
+        "placeholders": {}
     }
 }

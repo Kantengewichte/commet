@@ -1,7 +1,9 @@
+import 'package:commet/utils/common_strings.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter/material.dart' as material;
 import 'package:tiamat/tiamat.dart' as tiamat;
 import 'package:tiamat/tiamat.dart';
+import 'package:intl/intl.dart';
 
 class EditableLabel extends StatefulWidget {
   const EditableLabel({
@@ -9,14 +11,10 @@ class EditableLabel extends StatefulWidget {
     required this.initialText,
     this.type = TextType.label,
     this.onTextConfirmed,
-    this.changeTooltip = "Change text",
-    this.confirmTooltip = "Confirm",
   });
   final TextType type;
   final Function(String? newText)? onTextConfirmed;
   final String initialText;
-  final String changeTooltip;
-  final String confirmTooltip;
 
   @override
   State<EditableLabel> createState() => _EditableLabelState();
@@ -67,10 +65,16 @@ class _EditableLabelState extends State<EditableLabel> {
     );
   }
 
+  String get changeTooltip => Intl.message(
+    "Change text",
+    name: 'changeTooltip',
+    desc: 'Tooltip for changing the text of an editable label',
+  );
+
   Widget toggleNameEdit() {
     return editingName
         ? Tooltip(
-            text: widget.confirmTooltip,
+            text: CommonStrings.promptConfirm,
             preferredDirection: AxisDirection.right,
             child: tiamat.IconButton(
               icon: material.Icons.check,
@@ -78,7 +82,7 @@ class _EditableLabelState extends State<EditableLabel> {
             ),
           )
         : Tooltip(
-            text: widget.changeTooltip,
+            text: changeTooltip,
             preferredDirection: AxisDirection.right,
             child: tiamat.IconButton(
               icon: material.Icons.edit,
