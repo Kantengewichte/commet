@@ -24,6 +24,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:pretty_qr_code/pretty_qr_code.dart';
 import 'package:tiamat/tiamat.dart' as tiamat;
 import 'package:path/path.dart' as p;
+import 'package:intl/intl.dart';
 
 class MatrixUserWidgetRemoteHttpRunner implements MatrixWidgetRunner {
   @override
@@ -191,6 +192,12 @@ class MatrixUserWidgetRemoteHttpRunner implements MatrixWidgetRunner {
     Log.i("Client connected!");
   }
 
+  String get copyLinkText => Intl.message(
+    "Copy Link",
+    name: "copyLinkText",
+    desc: "Button text for copying a link",
+  );
+
   void showConnectionInfo(
     String secret,
     String hostName,
@@ -241,7 +248,7 @@ class MatrixUserWidgetRemoteHttpRunner implements MatrixWidgetRunner {
               child: SizedBox(
                 height: 30,
                 child: tiamat.TextButton(
-                  "Copy Link",
+                  copyLinkText,
                   icon: Icons.copy,
                   onTap: () {
                     Clipboard.setData(ClipboardData(text: url.toString()));

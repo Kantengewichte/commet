@@ -3,6 +3,7 @@ import 'dart:typed_data';
 import 'package:commet/utils/picker_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:tiamat/tiamat.dart';
+import 'package:intl/intl.dart';
 
 import 'package:tiamat/tiamat.dart' as tiamat;
 
@@ -14,14 +15,12 @@ class ImagePickerButton extends StatefulWidget {
     this.onImageRead,
     this.size = 128,
     this.cropAspectRatio,
-    this.tooltip = "Pick Image",
     this.withData = false,
     this.icon,
   });
   final ImageProvider? currentImage;
   final bool withData;
   final double? cropAspectRatio;
-  final String tooltip;
   final double size;
   final IconData? icon;
   final Function(String filepath)? onImagePicked;
@@ -41,10 +40,16 @@ class _ImagePickerButtonState extends State<ImagePickerButton> {
     super.initState();
   }
 
+  String get pickImagePrompt => Intl.message(
+    "Pick Image",
+    name: "pickImagePrompt",
+    desc: "Button text for picking an image",
+  );
+
   @override
   Widget build(BuildContext context) {
     return tiamat.Tooltip(
-      text: widget.tooltip,
+      text: pickImagePrompt,
       preferredDirection: AxisDirection.down,
       child: ImageButton(
         icon: image == null ? widget.icon : null,

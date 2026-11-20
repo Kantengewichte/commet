@@ -8,6 +8,7 @@ import 'package:intl/intl.dart';
 import 'package:just_the_tooltip/just_the_tooltip.dart';
 import 'package:tiamat/atoms/context_menu.dart';
 import 'package:tiamat/atoms/tile.dart';
+import 'package:commet/utils/common_strings.dart';
 
 import 'package:tiamat/tiamat.dart' as tiamat;
 
@@ -202,7 +203,7 @@ class TimelineOverlayState extends State<TimelineOverlay> {
                             : () => e.action?.call(context),
                       ),
                     buildAction(
-                      name: "Options",
+                      name: CommonStrings.promptOptions,
                       child: Icon(m.Icons.more_vert),
                       size: size,
                       contextMenuItems: currentMenu!.secondaryActions

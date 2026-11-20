@@ -46,7 +46,7 @@ class RoomQuickAccessMenu {
     actions = [
       if (invitation != null)
         RoomQuickAccessMenuEntry(
-          name: "Invite",
+          name: CommonStrings.promptInvite,
           action: (context) => AdaptiveDialog.show(
             context,
             builder: (context) => SendInvitationWidget(
@@ -56,7 +56,7 @@ class RoomQuickAccessMenu {
               displayName: room.displayName,
               existingMembers: room.memberIds,
             ),
-            title: "Invite",
+            title: CommonStrings.promptInvite,
           ),
           icon: Icons.person_add,
         ),

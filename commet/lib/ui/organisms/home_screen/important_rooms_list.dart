@@ -2,7 +2,7 @@ import 'package:commet/ui/atoms/room_panel.dart';
 import 'package:commet/utils/event_bus.dart';
 import 'package:flutter/material.dart';
 import 'package:commet/ui/atoms/notifying_list_builder.dart';
-
+import 'package:intl/intl.dart';
 import 'package:commet/ui/pages/main/main_page.dart';
 
 import 'package:tiamat/tiamat.dart' as tiamat;
@@ -16,6 +16,12 @@ class ImportantRoomsList extends StatelessWidget {
 
   final MainPageState state;
   final String directMessagesListHeaderDesktop;
+
+  String get labelFavorites => Intl.message(
+    "Favorites",
+    desc: "Header for the list of favorite rooms",
+    name: "labelFavorites",
+  );
 
   @override
   Widget build(BuildContext context) {
@@ -37,7 +43,7 @@ class ImportantRoomsList extends StatelessWidget {
                   children: [
                     Padding(
                       padding: const EdgeInsets.all(8.0),
-                      child: tiamat.Text.labelLow("Favorites"),
+                      child: tiamat.Text.labelLow(labelFavorites),
                     ),
                     Padding(
                       padding: const EdgeInsetsGeometry.fromLTRB(3, 0, 0, 0),
