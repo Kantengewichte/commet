@@ -211,4 +211,9 @@ class CommonStrings {
     desc: "Prompt to invite someone to a room or space",
     name: "promptInvite",
   );
+  static String get placeholderBlockedUser => Intl.message(
+    "Blocked User",
+    desc: "Text that is shown in place of another users name, when that user has been blocked",
+    name: "placeholderBlockedUser",
+  );
 }
