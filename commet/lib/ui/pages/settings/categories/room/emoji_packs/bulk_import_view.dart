@@ -182,19 +182,17 @@ class _EmoticonBulkImportDialogState extends State<EmoticonBulkImportDialog> {
   }
 
   Future<void> pickFolder() async {
-    var files = await FilePicker.platform.pickFiles(
-      type: FileType.image,
-      withData: true,
-      allowMultiple: true,
-    );
+    List<PlatformFile> files = await FilePicker.pickFiles(type: FileType.image);
 
-    setState(() {
+    setState(() async {
       reset();
-      datas = files!.files.map((e) => e.bytes!).toList();
-      images = files.files.map((e) => Image.memory(e.bytes!).image).toList();
-      names = files.files
-          .map((e) => p.basenameWithoutExtension(e.name))
-          .toList();
+      datas = await Future.wait(files.map((e) => e.readAsBytes()).toList());
+      images = await Future.wait(
+        files
+            .map((e) async => Image.memory(await e.readAsBytes()).image)
+            .toList(),
+      );
+      names = files.map((e) => p.basenameWithoutExtension(e.name)).toList();
       avatarIndex = 0;
       _controller.text = "";
     });

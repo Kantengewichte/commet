@@ -100,11 +100,11 @@ class DownloadFileTask implements BackgroundTaskWithOptionalProgress {
     if (PlatformUtils.isAndroid || kIsWeb) {
       final bytes = await file.getFileData();
       if (bytes != null) {
-        destinationPath = await FilePicker.platform.saveFile(
+        destinationPath = await FilePicker.saveFile(
           fileName: filename,
           initialDirectory: preferences.lastDownloadLocation.value,
           bytes: bytes,
-        );
+        ).toString();
 
         return destinationPath != null;
       } else {
@@ -112,10 +112,11 @@ class DownloadFileTask implements BackgroundTaskWithOptionalProgress {
       }
     }
 
-    destinationPath = await FilePicker.platform.saveFile(
+    destinationPath = await FilePicker.saveFile(
       fileName: filename,
       initialDirectory: preferences.lastDownloadLocation.value,
-    );
+      bytes: Uint8List.fromList([]),
+    ).toString();
 
     if (destinationPath != null) {
       await file.save(destinationPath!);

@@ -1329,19 +1329,17 @@ class MessageInputState extends State<MessageInput> {
         icon: Icons.attach_file,
         label: "File",
         execute: () async {
-          FilePickerResult? result = await FilePicker.platform.pickFiles(
+          List<PlatformFile> result = await FilePicker.pickFiles(
             type: FileType.any,
-            withData: true,
-            allowMultiple: true,
           );
-          if (result == null) return;
+          if (result.isEmpty) return;
 
-          for (var file in result.files) {
-            var attachment = PendingFileAttachment(
+          for (PlatformFile file in result) {
+            PendingFileAttachment attachment = PendingFileAttachment(
               name: file.name,
               path: PlatformUtils.isWeb ? null : file.path,
-              data: file.bytes,
-              size: file.bytes?.length,
+              data: await file.readAsBytes(),
+              size: (await file.readAsBytes()).length,
             );
 
             await handlePickedAttachment(attachment);
