@@ -13,6 +13,7 @@ import 'package:commet/ui/pages/get_or_create_room/get_or_create_room.dart';
 import 'package:commet/ui/pages/settings/room_settings_page.dart';
 import 'package:commet/ui/pages/settings/space_settings_page.dart';
 import 'package:flutter/material.dart';
+import 'package:commet/utils/common_strings.dart';
 
 import '../../navigation/navigation_utils.dart';
 
@@ -144,7 +145,7 @@ class _SpaceSummaryState extends State<SpaceSummary> {
           roomId: widget.space.identifier,
           displayName: widget.space.displayName,
         ),
-        title: "Invite",
+        title: CommonStrings.promptInvite,
       );
     }
   }

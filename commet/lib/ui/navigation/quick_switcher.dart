@@ -9,6 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:fuzzy/fuzzy.dart';
 import 'package:tiamat/atoms/tile.dart';
 import 'package:tiamat/tiamat.dart' as tiamat;
+import 'package:intl/intl.dart';
 
 class QuickSwitcher extends StatefulWidget {
   const QuickSwitcher({super.key});
@@ -105,6 +106,12 @@ class _QuickSwitcherState extends State<QuickSwitcher> {
     super.initState();
   }
 
+  String get labelSearchResults => Intl.message(
+    "Search Results",
+    name: "labelSearchResults",
+    desc: "Header for the search results in the quick switcher",
+  );
+
   @override
   Widget build(BuildContext context) {
     return SizedBox(
@@ -127,7 +134,7 @@ class _QuickSwitcherState extends State<QuickSwitcher> {
           if (searchResults.isNotEmpty)
             tiamat.Panel(
               mode: TileType.surfaceContainerLow,
-              header: "Search Results",
+              header: labelSearchResults,
               child: Padding(
                 padding: const EdgeInsets.fromLTRB(0, 12, 0, 0),
                 child: Column(
@@ -142,12 +149,24 @@ class _QuickSwitcherState extends State<QuickSwitcher> {
     );
   }
 
+  String get labelDirectMessages => Intl.message(
+    "Direct Messages",
+    name: "labelDirectMessages",
+    desc: "Header for the direct messages section in the quick switcher",
+  );
+
+  String get labelRecentActivity => Intl.message(
+    "Recent Activity",
+    name: "labelRecentActivity",
+    desc: "Header for the recent activity section in the quick switcher",
+  );
+
   Column buildDefaultView() {
     return Column(
       children: [
         tiamat.Panel(
           mode: TileType.surfaceContainerLow,
-          header: "Direct Messages",
+          header: labelDirectMessages,
           child: SingleChildScrollView(
             scrollDirection: Axis.horizontal,
             child: Row(
@@ -182,7 +201,7 @@ class _QuickSwitcherState extends State<QuickSwitcher> {
         ),
         tiamat.Panel(
           mode: TileType.surfaceContainerLow,
-          header: "Recent Activity",
+          header: labelRecentActivity,
           child: Column(
             spacing: 0,
             children: [

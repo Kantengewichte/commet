@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:commet/client/client.dart';
 import 'package:commet/utils/background_tasks/background_task_manager.dart';
+import 'package:intl/intl.dart';
 
 class ClientConnectionStatusTask extends BackgroundTaskWithOptionalProgress {
   Client client;
@@ -16,21 +17,48 @@ class ClientConnectionStatusTask extends BackgroundTaskWithOptionalProgress {
   @override
   double? progress;
 
-  @override
-  String get label => client.self == null
+  String labelTaskStatus(String? user) => client.self == null
       ? switch (status) {
-          BackgroundTaskStatus.running => "Connecting...",
-          BackgroundTaskStatus.failed => "Disconnected",
-          BackgroundTaskStatus.completed => "Connected",
+          BackgroundTaskStatus.running => Intl.message(
+            "Connecting...",
+            desc: "Label for background task when connecting to server",
+            name: "labelBackgroundTaskStatusConnecting",
+          ),
+          BackgroundTaskStatus.failed => Intl.message(
+            "Disconnected",
+            desc: "Label for background task when disconnected from server",
+            name: "labelBackgroundTaskStatusDisconnected",
+          ),
+          BackgroundTaskStatus.completed => Intl.message(
+            "Connected",
+            desc: "Label for background task when connected to server",
+            name: "labelBackgroundTaskStatusConnected",
+          ),
         }
       : switch (status) {
-          BackgroundTaskStatus.running =>
-            "${client.self!.displayName} connecting...",
-          BackgroundTaskStatus.failed =>
-            "${client.self!.displayName} disconnected",
-          BackgroundTaskStatus.completed =>
-            "${client.self!.displayName} connected",
+          BackgroundTaskStatus.running => Intl.message(
+            "$user connecting...",
+            desc: "Label for background task when connecting to server with account name",
+            name: "labelBackgroundTaskStatusConnectingWithAccount",
+            args: [user!],
+          ),
+          BackgroundTaskStatus.failed => Intl.message(
+            "$user disconnected",
+            desc: "Label for background task when disconnected from server with account name",
+            name: "labelBackgroundTaskStatusDisconnectedWithAccount",
+            args: [user!],
+          ),
+          BackgroundTaskStatus.completed => Intl.message(
+            "$user connected",
+            desc: "Label for background task when connected to server with account name",
+            name: "labelBackgroundTaskStatusConnectedWithAccount",
+            args: [user!],
+          ),
         };
+
+  @override
+  String get label =>
+      labelTaskStatus(client.self == null ? null : client.self?.displayName);
 
   @override
   Stream<void> get statusChanged => controller.stream;

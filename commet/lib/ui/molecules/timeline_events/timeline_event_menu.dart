@@ -96,10 +96,28 @@ class TimelineEventMenu {
     name: "promptEndPoll",
   );
 
+  String get promptEndPollConfirmation => Intl.message(
+    "Are you sure you want to end the poll?",
+    desc: "Prompt the user to confirm ending a poll",
+    name: "promptEndPollConfirmation",
+  );
+
   String get promptFavoriteGif => Intl.message(
     "Favorite GIF",
     desc: "Prompt the user to mark a gif as a favorite",
     name: "promptFavoriteGif",
+  );
+
+  String get copyLinkText => Intl.message(
+    "Copy Link",
+    name: "copyLinkText",
+    desc: "Button text for copying a link",
+  );
+
+  String get frequentlyUsedReactionsLabel => Intl.message(
+    "Frequently Used",
+    name: "frequentlyUsedReactionsLabel",
+    desc: "Label for the frequently used reactions section in the emoji picker",
   );
 
   TimelineEventMenu({
@@ -218,7 +236,7 @@ class TimelineEventMenu {
           0,
           DynamicEmoticonPack(
             identifier: "dynamic_pack_frequently_used_reactions",
-            displayName: "Frequently Used",
+            displayName: frequentlyUsedReactionsLabel,
             icon: Icons.schedule,
             emoticons: recent,
             usage: EmoticonUsage.all,
@@ -278,7 +296,7 @@ class TimelineEventMenu {
             if (await AdaptiveDialog.confirmation(
                   context,
                   title: promptEndPoll,
-                  prompt: "Are you sure you want to end the poll?",
+                  prompt: promptEndPollConfirmation,
                 ) ==
                 true)
               polls?.endPoll(timeline.room, event);
@@ -424,7 +442,7 @@ class TimelineEventMenu {
         ),
       if (links?.isNotEmpty == true)
         TimelineEventMenuEntry(
-          name: "Copy Link",
+          name: copyLinkText,
           icon: Icons.link,
           action: (context) async {
             if (links!.length > 1) {

@@ -97,11 +97,17 @@ class _RoomSecuritySettingsPageState extends State<RoomSecuritySettingsPage> {
     );
   }
 
+  String get labelRoomVisibilityTitle => Intl.message(
+    "Room Visibility",
+    desc: "Header for the room visibility section in settings",
+    name: "labelRoomVisibilityTitle",
+  );
+
   Widget buildRoomVisibility() {
     return IgnorePointer(
       ignoring: !widget.room.permissions.canChangeVisibility,
       child: tiamat.Panel(
-        header: "Room Visibility",
+        header: labelRoomVisibilityTitle,
         mode: TileType.surfaceContainerLow,
         child: Material(
           color: Colors.transparent,

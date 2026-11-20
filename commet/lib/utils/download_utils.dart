@@ -9,6 +9,7 @@ import 'package:commet/utils/background_tasks/background_task_manager.dart';
 import 'package:commet/utils/file_utils.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
+import 'package:intl/intl.dart';
 
 class DownloadFileTask implements BackgroundTaskWithOptionalProgress {
   FileProvider file;
@@ -45,10 +46,17 @@ class DownloadFileTask implements BackgroundTaskWithOptionalProgress {
   @override
   Stream<void> get statusChanged => controller.stream;
 
+  String labelTaskStatus(String filename) => Intl.message(
+    "Downloading '$filename'...",
+    desc: "Label for background task when downloading a file",
+    name: "labelBackgroundTaskStatusDownloadingFile",
+    args: [filename],
+  );
+
   DownloadFileTask(this.file, String? fileName) {
     filename = fileName ?? "unnamed";
 
-    this.label = "Downloading '$filename'...";
+    this.label = labelTaskStatus(filename);
 
     action = navigateToFile;
   }

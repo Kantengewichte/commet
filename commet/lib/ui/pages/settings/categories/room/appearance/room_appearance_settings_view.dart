@@ -13,6 +13,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:tiamat/config/style/theme_extensions.dart';
 import 'package:tiamat/tiamat.dart' as tiamat;
+import 'package:intl/intl.dart';
 
 class RoomAppearanceSettingsView extends StatefulWidget {
   const RoomAppearanceSettingsView({
@@ -61,6 +62,12 @@ class _RoomAppearanceSettingsViewState
     topic = widget.topic;
     super.initState();
   }
+
+  String get topicPrompt => Intl.message(
+    "Set a Topic",
+    name: "setTopicPrompt",
+    desc: "Prompt for setting the room topic",
+  );
 
   @override
   Widget build(BuildContext context) {
@@ -134,7 +141,7 @@ class _RoomAppearanceSettingsViewState
                       LinkUtils.open(Uri.parse(href), context: context);
                     }
                   },
-                  data: topic?.isNotEmpty == true ? topic! : "Set a topic",
+                  data: topic?.isNotEmpty == true ? topic! : topicPrompt,
                 ),
               ),
             ),

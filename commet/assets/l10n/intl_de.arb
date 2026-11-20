@@ -2989,5 +2989,317 @@
         "description": "",
         "type": "text",
         "placeholders": {}
+    },
+    "labelTimelineNewMessagesMarker": "Neue Nachrichten",
+    "@labelTimelineNewMessagesMarker": {
+        "description": "Text, der unterhalb der zuletzt gelesenen Nachricht angezeigt wird",
+        "type": "text",
+        "placeholders": {}
+    },
+    "labelPickThemeArchiveFile": "Design-Archivdatei auswählen",
+    "@labelPickThemeArchiveFile": {
+        "description": "Bezeichnung für den Dateiauswahldialog zum Auswählen einer Design-Archivdatei",
+        "type": "text",
+        "placeholders": {}
+    },
+    "labelReadReceipts": "Lesebestätigungen",
+    "@labelReadReceipts": {
+        "description": "Titel des Dialogs für Lesebestätigungen",
+        "type": "text",
+        "placeholders": {}
+    },
+    "labelAddReaction": "Reaktion hinzufügen",
+    "@labelAddReaction": {
+        "description": "Bezeichnung für die Schaltfläche zum Hinzufügen einer Reaktion im Kontextmenü",
+        "type": "text",
+        "placeholders": {}
+    },
+    "labelContextMenuMarkAsRead": "Als gelesen markieren",
+    "@labelContextMenuMarkAsRead": {
+        "description": "Menüeintrag im Kontextmenü zum Markieren eines Raums als gelesen",
+        "type": "text",
+        "placeholders": {}
+    },
+    "labelContextMenuSetAsFavorite": "Zu Favoriten hinzufügen",
+    "@labelContextMenuSetAsFavorite": {
+        "description": "Menüeintrag im Kontextmenü zum Hinzufügen eines Raums zu den Favoriten",
+        "type": "text",
+        "placeholders": {}
+    },
+    "labelContextMenuUnfavorite": "Aus Favoriten entfernen",
+    "@labelContextMenuUnfavorite": {
+        "description": "Menüeintrag im Kontextmenü zum Entfernen eines Raums aus den Favoriten",
+        "type": "text",
+        "placeholders": {}
+    },
+    "labelContextMenuOpenAsTextChat": "Als Textchat öffnen",
+    "@labelContextMenuOpenAsTextChat": {
+        "description": "Menüeintrag im Kontextmenü zum Öffnen eines speziellen Raums als Textchat",
+        "type": "text",
+        "placeholders": {}
+    },
+    "labelContextMenuClearMembershipStatus": "Mitgliedschaftsstatus zurücksetzen",
+    "@labelContextMenuClearMembershipStatus": {
+        "description": "Menüeintrag im Kontextmenü zum Zurücksetzen des Mitgliedschaftsstatus in einem VoIP-Raum",
+        "type": "text",
+        "placeholders": {}
+    },
+    "labelContextMenuSettings": "Einstellungen",
+    "@labelContextMenuSettings": {
+        "description": "Menüeintrag im Kontextmenü zum Öffnen der Raumeinstellungen",
+        "type": "text",
+        "placeholders": {}
+    },
+    "labelFavorites": "Favoriten",
+    "@labelFavorites": {
+        "description": "Überschrift für die Liste der bevorzugten Räume",
+        "type": "text",
+        "placeholders": {}
+    },
+    "labelSearchResults": "Suchergebnisse",
+    "@labelSearchResults": {
+        "description": "Überschrift für die Suchergebnisse im Schnellwechsler",
+        "type": "text",
+        "placeholders": {}
+    },
+    "labelDirectMessages": "Direktnachrichten",
+    "@labelDirectMessages": {
+        "description": "Überschrift für den Bereich mit Direktnachrichten im Schnellwechsler",
+        "type": "text",
+        "placeholders": {}
+    },
+    "labelRecentActivity": "Letzte Aktivitäten",
+    "@labelRecentActivity": {
+        "description": "Überschrift für den Bereich mit den letzten Aktivitäten im Schnellwechsler",
+        "type": "text",
+        "placeholders": {}
+    },
+    "labelRoomAddresses": "Raumadressen",
+    "@labelRoomAddresses": {
+        "description": "Bezeichnung für die Einstellungsseite der Raumadressen",
+        "type": "text",
+        "placeholders": {}
+    },
+    "labelOtherAddresses": "Weitere Adressen:",
+    "@labelOtherAddresses": {
+        "description": "Bezeichnung für den Bereich mit weiteren Adressen auf der Einstellungsseite der Raumadressen",
+        "type": "text",
+        "placeholders": {}
+    },
+    "labelnolocalAddresses": "Dieser Raum hat derzeit keine lokalen Adressen",
+    "@labelnolocalAddresses": {
+        "description": "Hinweis, der angezeigt wird, wenn ein Raum auf der Einstellungsseite der Raumadressen keine lokalen Adressen hat",
+        "type": "text",
+        "placeholders": {}
+    },
+    "labelunpublishAddress": "Adresse nicht mehr veröffentlichen",
+    "@labelunpublishAddress": {
+        "description": "Bezeichnung für den Tooltip zum Aufheben der Veröffentlichung einer Adresse auf der Einstellungsseite der Raumadressen",
+        "type": "text",
+        "placeholders": {}
+    },
+    "labelpublishAddress": "Adresse veröffentlichen",
+    "@labelpublishAddress": {
+        "description": "Bezeichnung für den Tooltip zum Veröffentlichen einer Adresse auf der Einstellungsseite der Raumadressen",
+        "type": "text",
+        "placeholders": {}
+    },
+    "labeldeletelocalAddress": "Lokale Adresse löschen",
+    "@labeldeletelocalAddress": {
+        "description": "Bezeichnung für den Tooltip zum Löschen einer lokalen Adresse auf der Einstellungsseite der Raumadressen",
+        "type": "text",
+        "placeholders": {}
+    },
+    "labeladdlocalAddress": "Lokale Adresse hinzufügen",
+    "@labeladdlocalAddress": {
+        "description": "Bezeichnung für den Tooltip zum Hinzufügen einer lokalen Adresse auf der Einstellungsseite der Raumadressen",
+        "type": "text",
+        "placeholders": {}
+    },
+    "labelSelectMainAddress": "Hauptadresse des Raums auswählen",
+    "@labelSelectMainAddress": {
+        "description": "Bezeichnung für den Tooltip zur Auswahl der Hauptadresse auf der Einstellungsseite der Raumadressen",
+        "type": "text",
+        "placeholders": {}
+    },
+    "labelThisRoomDoesNotHaveAMainAddress": "Für diesen Raum ist keine Hauptadresse festgelegt",
+    "@labelThisRoomDoesNotHaveAMainAddress": {
+        "description": "Hinweis, der angezeigt wird, wenn für einen Raum keine Hauptadresse festgelegt ist",
+        "type": "text",
+        "placeholders": {}
+    },
+    "labelAreYouSureYouWantToDeleteThisAddress": "Möchtest du die Adresse {item} wirklich löschen?",
+    "@labelAreYouSureYouWantToDeleteThisAddress": {
+        "description": "Text des Bestätigungsdialogs beim Löschen einer lokalen Adresse auf der Einstellungsseite der Raumadressen",
+        "type": "text",
+        "placeholders": {
+            "item": {}
+        }
+    },
+    "labelYouDoNotHavePermissionToDeleteThisAddress": "Du hast keine Berechtigung, {item} zu löschen",
+    "@labelYouDoNotHavePermissionToDeleteThisAddress": {
+        "description": "Fehlermeldung, die angezeigt wird, wenn versucht wird, eine lokale Adresse ohne entsprechende Berechtigung zu löschen",
+        "type": "text",
+        "placeholders": {
+            "item": {}
+        }
+    },
+    "labelFavoritePacks": "Bevorzugte Pakete",
+    "@labelFavoritePacks": {
+        "description": "Bezeichnung für den Bereich mit den bevorzugten Paketen in den Emoji-Kontoeinstellungen",
+        "type": "text",
+        "placeholders": {}
+    },
+    "labelRoomVisibilityTitle": "Raumsichtbarkeit",
+    "@labelRoomVisibilityTitle": {
+        "description": "Überschrift für den Bereich zur Sichtbarkeit von Räumen in den Einstellungen",
+        "type": "text",
+        "placeholders": {}
+    },
+    "labelBackgroundTaskStatusConnecting": "Verbindung wird hergestellt...",
+    "@labelBackgroundTaskStatusConnecting": {
+        "description": "Bezeichnung für eine Hintergrundaufgabe während des Verbindungsaufbaus zum Server",
+        "type": "text",
+        "placeholders": {}
+    },
+    "labelBackgroundTaskStatusDisconnected": "Nicht verbunden",
+    "@labelBackgroundTaskStatusDisconnected": {
+        "description": "Bezeichnung für eine Hintergrundaufgabe, wenn keine Verbindung zum Server besteht",
+        "type": "text",
+        "placeholders": {}
+    },
+    "labelBackgroundTaskStatusConnected": "Verbunden",
+    "@labelBackgroundTaskStatusConnected": {
+        "description": "Bezeichnung für eine Hintergrundaufgabe, wenn eine Verbindung zum Server besteht",
+        "type": "text",
+        "placeholders": {}
+    },
+    "labelBackgroundTaskStatusConnectingWithAccount": "{user} stellt eine Verbindung her...",
+    "@labelBackgroundTaskStatusConnectingWithAccount": {
+        "description": "Bezeichnung für eine Hintergrundaufgabe während des Verbindungsaufbaus zum Server mit Angabe des Kontonamens",
+        "type": "text",
+        "placeholders": {
+            "user": {}
+        }
+    },
+    "labelBackgroundTaskStatusDisconnectedWithAccount": "{user} ist nicht verbunden",
+    "@labelBackgroundTaskStatusDisconnectedWithAccount": {
+        "description": "Bezeichnung für eine Hintergrundaufgabe, wenn das Konto nicht mit dem Server verbunden ist",
+        "type": "text",
+        "placeholders": {
+            "user": {}
+        }
+    },
+    "labelBackgroundTaskStatusConnectedWithAccount": "{user} ist verbunden",
+    "@labelBackgroundTaskStatusConnectedWithAccount": {
+        "description": "Bezeichnung für eine Hintergrundaufgabe, wenn das Konto mit dem Server verbunden ist",
+        "type": "text",
+        "placeholders": {
+            "user": {}
+        }
+    },
+    "labelBackgroundTaskStatusDownloadingFile": "{filename} wird heruntergeladen...",
+    "@labelBackgroundTaskStatusDownloadingFile": {
+        "description": "Bezeichnung für eine Hintergrundaufgabe während des Herunterladens einer Datei",
+        "type": "text",
+        "placeholders": {
+            "filename": {}
+        }
+    },
+    "promptInvite": "Einladen",
+    "@promptInvite": {
+        "description": "Bezeichnung für die Einladen-Schaltfläche in der Mitgliederliste eines Raums",
+        "type": "text",
+        "placeholders": {}
+    },
+    "copyLinkText": "Link kopieren",
+    "@copyLinkText": {
+        "description": "Bezeichnung für die Schaltfläche zum Kopieren des Links in der Mitgliederliste eines Raums",
+        "type": "text",
+        "placeholders": {}
+    },
+    "setTopicPrompt": "Thema festlegen",
+    "@setTopicPrompt": {
+        "description": "Aufforderung zum Festlegen des Raumthemas",
+        "type": "text",
+        "placeholders": {}
+    },
+    "message_input_poll_label": "Umfrage",
+    "@message_input_poll_label": {
+        "description": "Bezeichnung für die Umfrage-Schaltfläche im Nachrichteneingabefeld",
+        "type": "text",
+        "placeholders": {}
+    },
+    "promptEndPollConfirmation": "Möchtest du diese Umfrage wirklich beenden?",
+    "@promptEndPollConfirmation": {
+        "description": "Aufforderung zur Bestätigung des Beendens einer Umfrage",
+        "type": "text",
+        "placeholders": {}
+    },
+    "frequentlyUsedReactionsLabel": "Häufig verwendet",
+    "@frequentlyUsedReactionsLabel": {
+        "description": "Bezeichnung für den Bereich mit häufig verwendeten Reaktionen in der Emoji-Auswahl",
+        "type": "text",
+        "placeholders": {}
+    },
+    "emoji_group_smileys": "Smileys",
+    "@emoji_group_smileys": {
+        "description": "Bezeichnung für die Smileys-Emoji-Gruppe in der Emoji-Auswahl",
+        "type": "text",
+        "placeholders": {}
+    },
+    "emoji_group_people": "Menschen",
+    "@emoji_group_people": {
+        "description": "Bezeichnung für die Menschen-Emoji-Gruppe in der Emoji-Auswahl",
+        "type": "text",
+        "placeholders": {}
+    },
+    "emoji_group_animals_nature": "Tiere und Natur",
+    "@emoji_group_animals_nature": {
+        "description": "Bezeichnung für die Emoji-Gruppe Tiere und Natur in der Emoji-Auswahl",
+        "type": "text",
+        "placeholders": {}
+    },
+    "emoji_group_food_drink": "Essen und Trinken",
+    "@emoji_group_food_drink": {
+        "description": "Bezeichnung für die Emoji-Gruppe Essen und Trinken in der Emoji-Auswahl",
+        "type": "text",
+        "placeholders": {}
+    },
+    "emoji_group_travel_places": "Reisen und Orte",
+    "@emoji_group_travel_places": {
+        "description": "Bezeichnung für die Emoji-Gruppe Reisen und Orte in der Emoji-Auswahl",
+        "type": "text",
+        "placeholders": {}
+    },
+    "emoji_group_activities": "Aktivitäten",
+    "@emoji_group_activities": {
+        "description": "Bezeichnung für die Aktivitäten-Emoji-Gruppe in der Emoji-Auswahl",
+        "type": "text",
+        "placeholders": {}
+    },
+    "emoji_group_objects": "Gegenstände",
+    "@emoji_group_objects": {
+        "description": "Bezeichnung für die Gegenstände-Emoji-Gruppe in der Emoji-Auswahl",
+        "type": "text",
+        "placeholders": {}
+    },
+    "emoji_group_symbols": "Symbole",
+    "@emoji_group_symbols": {
+        "description": "Bezeichnung für die Symbole-Emoji-Gruppe in der Emoji-Auswahl",
+        "type": "text",
+        "placeholders": {}
+    },
+    "emoji_group_flags": "Flaggen",
+    "@emoji_group_flags": {
+        "description": "Bezeichnung für die Flaggen-Emoji-Gruppe in der Emoji-Auswahl",
+        "type": "text",
+        "placeholders": {}
+    },
+    "labelRoomMembers": "Raummitglieder",
+    "@labelRoomMembers": {
+        "description": "Bezeichnung für den Bereich mit den Raummitgliedern in den Raumeinstellungen",
+        "type": "text",
+        "placeholders": {}
     }
 }
