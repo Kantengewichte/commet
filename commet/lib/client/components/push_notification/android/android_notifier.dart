@@ -43,14 +43,59 @@ class AndroidNotifier implements Notifier {
 
     flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
 
-    const settings = AndroidInitializationSettings("notification_icon");
+    const settings = AndroidInitializationSettings("@mipmap/ic_launcher");
     const initSettings = InitializationSettings(android: settings);
 
-    await flutterLocalNotificationsPlugin?.initialize(
-      initSettings,
-      onDidReceiveBackgroundNotificationResponse:
-          onBackgroundNotificationResponse,
-      onDidReceiveNotificationResponse: onResponse,
+    try {
+      await flutterLocalNotificationsPlugin?.initialize(
+        initSettings,
+        onDidReceiveBackgroundNotificationResponse:
+            onBackgroundNotificationResponse,
+        onDidReceiveNotificationResponse: onResponse,
+      );
+    } catch (e, s) {
+      Log.e("Failed to initialize local notification plugin");
+      Log.onError(e, s);
+    }
+
+    final android = flutterLocalNotificationsPlugin!
+        .resolvePlatformSpecificImplementation<
+          AndroidFlutterLocalNotificationsPlugin
+        >();
+
+    await android?.createNotificationChannel(
+      const AndroidNotificationChannel(
+        "messages",
+        "Message Received",
+        description: "Notifications for new chat messages",
+        importance: Importance.high,
+        sound: RawResourceAndroidNotificationSound("message"),
+      ),
+    );
+    await android?.createNotificationChannel(
+      const AndroidNotificationChannel(
+        "incoming_calls_channel_1",
+        "Incoming Call",
+        description: "Notifications for incoming calls",
+        importance: Importance.high,
+        sound: RawResourceAndroidNotificationSound("ringtone_in"),
+      ),
+    );
+    await android?.createNotificationChannel(
+      const AndroidNotificationChannel(
+        "errors",
+        "Error Messages",
+        description: "Application error notifications",
+        importance: Importance.high,
+      ),
+    );
+    await android?.createNotificationChannel(
+      const AndroidNotificationChannel(
+        "chat_invites",
+        "Chat Invitations",
+        description: "Notifications for chat invitations",
+        importance: Importance.high,
+      ),
     );
 
     if (!isHeadless) {
@@ -252,26 +297,21 @@ class AndroidNotifier implements Notifier {
     var details = AndroidNotificationDetails(
       "messages",
       "Message Received",
+      icon: "@mipmap/ic_launcher",
       importance: Importance.high,
       priority: Priority.high,
-      icon: "notification_icon",
       number: style.messages!.length,
-      largeIcon: FilePathAndroidBitmap(roomAvatar.toString()),
+      largeIcon: roomAvatar == null
+          ? null
+          : FilePathAndroidBitmap(roomAvatar.toFilePath()),
       subText: content.roomName,
       groupKey: content.roomId,
       groupAlertBehavior: GroupAlertBehavior.all,
       styleInformation: style,
-      sound: RawResourceAndroidNotificationSound('message'),
       shortcutId: content.roomId,
       silent: content.priority == NotificationPriority.low,
       ticker: content.content,
-      bubble: bubblesEnabled
-          ? BubbleMetadata(
-              "chat.commet.commetapp.BubbleActivity",
-              extra: payload,
-              desiredHeight: 600,
-            )
-          : null,
+      bubble: null,
       color: const Color.fromARGB(0xff, 0x53, 0x4c, 0xdd),
     );
 
@@ -328,12 +368,12 @@ class AndroidNotifier implements Notifier {
       "Incoming Call",
       importance: Importance.high,
       priority: Priority.high,
-      icon: "notification_icon",
       timeoutAfter: 60000,
-      largeIcon: FilePathAndroidBitmap(roomAvatar.toString()),
+      largeIcon: roomAvatar == null
+          ? null
+          : FilePathAndroidBitmap(roomAvatar.toFilePath()),
       subText: content.roomName,
       fullScreenIntent: true,
-      sound: RawResourceAndroidNotificationSound('ringtone_in'),
       groupKey: content.roomId,
       actions: [
         AndroidNotificationAction(
@@ -386,7 +426,7 @@ class AndroidNotifier implements Notifier {
 
   @override
   Future<bool> requestPermission() async {
-    return true;
+    return checkPermission();
   }
 
   static void onResponse(NotificationResponse details) {
@@ -468,7 +508,6 @@ class AndroidNotifier implements Notifier {
       "Error Messages",
       importance: Importance.high,
       priority: Priority.high,
-      icon: "notification_icon",
       styleInformation: BigTextStyleInformation(notification.content),
     );
 
@@ -488,7 +527,6 @@ class AndroidNotifier implements Notifier {
       "Chat Invitations",
       importance: Importance.high,
       priority: Priority.high,
-      icon: "notification_icon",
     );
 
     await flutterLocalNotificationsPlugin?.show(
