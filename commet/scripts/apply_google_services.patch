@@ -28,8 +28,8 @@ diff --git a/commet/lib/client/components/push_notification/android/firebase_pus
 index 0c39f98f..a53c381c 100644
 --- a/commet/lib/client/components/push_notification/android/firebase_push_notifier.dart
 +++ b/commet/lib/client/components/push_notification/android/firebase_push_notifier.dart
-@@ -15,12 +15,12 @@ import 'package:commet/main.dart';
- import 'package:commet/service/background_service_notifications/background_service_task_notification2.dart';
+@@ -15,12 +15,12 @@ import 'package:commet/service/background_service_notifications/background_service_task_notification2.dart';
+ import 'package:flutter/widgets.dart';
  
  // Manage these to enable / disable firebase
 -// import 'package:firebase_core/firebase_core.dart';

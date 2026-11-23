@@ -13,3 +13,7 @@ key.properties
 **/*.keystore
 **/*.jks
 **/*.jks.b64
+key.properties.bak
+**/*.keystore.bak
+**/*.jks.bak
+**/*.jks.b64.bak

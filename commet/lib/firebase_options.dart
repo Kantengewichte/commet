@@ -4,6 +4,7 @@
 import 'package:firebase_core/firebase_core.dart' show FirebaseOptions;
 import 'package:flutter/foundation.dart'
     show defaultTargetPlatform, kIsWeb, TargetPlatform;
+import 'package:commet/config/build_config.dart';
 
 /// Default [FirebaseOptions] for use with your Firebase apps.
 ///
@@ -25,7 +26,7 @@ class DefaultFirebaseOptions {
     }
     switch (defaultTargetPlatform) {
       case TargetPlatform.android:
-        return android;
+        return BuildConfig.DEBUG ? androidDebug : androidRelease;
       case TargetPlatform.iOS:
         throw UnsupportedError(
           'DefaultFirebaseOptions have not been configured for ios - '
@@ -53,7 +54,15 @@ class DefaultFirebaseOptions {
     }
   }
 
-  static const FirebaseOptions android = FirebaseOptions(
+  static const FirebaseOptions androidDebug = FirebaseOptions(
+    apiKey: 'AIzaSyB9p6VqktUpinkfK8AkBUvWtW7P9yebtCs',
+    appId: '1:714066565492:android:5769795fa988f8abe5b421',
+    messagingSenderId: '714066565492',
+    projectId: 'commet-16334',
+    storageBucket: 'commet-16334.appspot.com',
+  );
+
+  static const FirebaseOptions androidRelease = FirebaseOptions(
     apiKey: 'AIzaSyCwhmOyXaJE8ifrngJAuahp4BSknwo0fzY',
     appId: '1:265203884074:android:d9a0879f74ec5c52102353',
     messagingSenderId: '265203884074',
