@@ -22,7 +22,7 @@ tao = "0.37.1"
 tokio = { version = "1.50.0", features = ["io-util", "io-std"] }
 uuid = "1.23.0"
 wry = "0.57.0"
-overlay = { git = "https://github.com/commetchat/overlay.git", rev = "e0b4d4402ddcffb66829b78f900ccd7bf43a8d9d" }
+overlay = { git = "https://github.com/commetchat/overlay.git", rev = "5fc742e96e529695b799e5bf08e4702a68a7b3b8" }
 
 [target.'cfg(unix)'.dependencies]
 webrtc = "0.21.1"
