@@ -330,6 +330,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.0.9"
+  cupertino_ui:
+    dependency: transitive
+    description:
+      name: cupertino_ui
+      sha256: c3eaf7f5bdfee36deb0b14a4cbf7602f1b6b8d8b8576b81f38fc08c25881c94c
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.1.7"
   dart_ipc:
     dependency: transitive
     description:
@@ -424,10 +432,10 @@ packages:
     dependency: transitive
     description:
       name: dropdown_button2
-      sha256: b0fe8d49a030315e9eef6c7ac84ca964250155a6224d491c1365061bc974a9e1
+      sha256: "97bfdb259c9dcf8ca232ee38c3bbf57d9f967b0ebc14eadaea39666fbdfe647a"
       url: "https://pub.dev"
     source: hosted
-    version: "2.3.9"
+    version: "4.0.0"
   dynamic_color:
     dependency: transitive
     description:
@@ -1254,6 +1262,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.13.0"
+  material_ui:
+    dependency: transitive
+    description:
+      name: material_ui
+      sha256: a6b19012df437a356cbc01f8ea22a105e07194c47c9a6009da0032a0ce35c4ab
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.11.1"
   matrix:
     dependency: transitive
     description:
