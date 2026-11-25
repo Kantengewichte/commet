@@ -14,10 +14,9 @@ import 'package:intl/intl.dart';
 
 Future<Directory?> _getXdgPicturesDirectory() async {
   final environment = Platform.environment;
-  final picturesPath = environment["XDG_PICTURES_DIR"] ??
-      (environment["HOME"] == null
-          ? null
-          : "${environment["HOME"]}/Pictures");
+  final picturesPath =
+      environment["XDG_PICTURES_DIR"] ??
+      (environment["HOME"] == null ? null : "${environment["HOME"]}/Pictures");
   if (picturesPath == null || picturesPath.isEmpty) return null;
 
   final directory = Directory(picturesPath);
