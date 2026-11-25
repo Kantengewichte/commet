@@ -12,6 +12,41 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
 import 'package:intl/intl.dart';
 
+Future<Directory?> _getXdgPicturesDirectory() async {
+  final homeDirectory = Platform.environment["HOME"];
+  if (homeDirectory == null) return null;
+
+  final configHome =
+      Platform.environment["XDG_CONFIG_HOME"] ?? "$homeDirectory/.config";
+  final userDirsFile = File("$configHome/user-dirs.dirs");
+
+  var picturesPath = r"$HOME/Pictures";
+  if (await userDirsFile.exists()) {
+    final contents = await userDirsFile.readAsLines();
+    for (final line in contents) {
+      final match = RegExp(r'^\\s*XDG_PICTURES_DIR\\s*=\\s*(.*?)\\s*$')
+          .firstMatch(line);
+      if (match != null) {
+        picturesPath = match.group(1)!.replaceAll('"', '').replaceAll("'", '');
+        break;
+      }
+    }
+  }
+
+  picturesPath = picturesPath
+      .replaceAll(r"${HOME}", homeDirectory)
+      .replaceAll(r"$HOME", homeDirectory);
+  if (picturesPath == "~") {
+    picturesPath = homeDirectory;
+  } else if (picturesPath.startsWith("~/")) {
+    picturesPath = "$homeDirectory/${picturesPath.substring(2)}";
+  }
+
+  final directory = Directory(picturesPath);
+  await directory.create(recursive: true);
+  return directory;
+}
+
 class DownloadFileTask implements BackgroundTaskWithOptionalProgress {
   FileProvider file;
   late String filename;
@@ -96,7 +131,6 @@ class DownloadFileTask implements BackgroundTaskWithOptionalProgress {
       progress = amount;
 
       controller.add(());
-
     });
 
     if (PlatformUtils.isAndroid || kIsWeb) {
@@ -116,12 +150,7 @@ class DownloadFileTask implements BackgroundTaskWithOptionalProgress {
 
     var initialDirectory = preferences.lastDownloadLocation.value;
     if (initialDirectory == null && PlatformUtils.isLinux) {
-      final homeDirectory = Platform.environment["HOME"];
-      if (homeDirectory != null) {
-        final picturesDirectory = Directory("$homeDirectory/Pictures");
-        await picturesDirectory.create(recursive: true);
-        initialDirectory = picturesDirectory.path;
-      }
+      initialDirectory = (await _getXdgPicturesDirectory())?.path;
     }
 
     destinationPath = await FilePicker.platform.saveFile(
