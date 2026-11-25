@@ -1,4 +1,4 @@
-# Runs only after the static-analysis workflow fails on a pull request.
+# Runs only after static analysis fails on a same-repository pull request.
 # The format job waits for approval through the "format-approval" environment.
 name: format-after-static-analysis
 
@@ -17,19 +17,54 @@ jobs:
     name: Format PR after approval
     if: >-
       github.event.workflow_run.conclusion == 'failure' &&
-      github.event.workflow_run.event == 'pull_request' &&
-      github.event.workflow_run.pull_requests[0] != null &&
-      github.event.workflow_run.pull_requests[0].head.repo.full_name == github.repository
+      github.event.workflow_run.event == 'pull_request'
     runs-on: ubuntu-latest
     environment:
       name: format-approval
     permissions:
       contents: write
+      pull-requests: read
+
     steps:
+      - name: Find and validate the failed PR
+        id: pr
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          WORKFLOW_HEAD_SHA: ${{ github.event.workflow_run.head_sha }}
+        run: |
+          set -euo pipefail
+
+          prs=$(gh api \
+            "repos/${GITHUB_REPOSITORY}/commits/${WORKFLOW_HEAD_SHA}/pulls")
+
+          pr=$(echo "$prs" | jq -r \
+            --arg repo "$GITHUB_REPOSITORY" \
+            --arg sha "$WORKFLOW_HEAD_SHA" \
+            '[.[] |
+              select(
+                .state == "open" and
+                .head.repo.full_name == $repo and
+                .head.sha == $sha and
+                .base.repo.full_name == $repo
+              )
+            ] | first // empty')
+
+          if [ -z "$pr" ]; then
+            echo "No matching open, same-repository PR found. Refusing to push."
+            exit 1
+          fi
+
+          pr_number=$(echo "$pr" | jq -r '.number')
+          pr_branch=$(echo "$pr" | jq -r '.head.ref')
+
+          echo "Found PR #${pr_number}, branch ${pr_branch}"
+          echo "number=${pr_number}" >> "$GITHUB_OUTPUT"
+          echo "branch=${pr_branch}" >> "$GITHUB_OUTPUT"
+
       - name: Checkout failed PR commit
         uses: actions/checkout@v7
         with:
-          ref: ${{ github.event.workflow_run.pull_requests[0].head.sha }}
+          ref: ${{ github.event.workflow_run.head_sha }}
           submodules: 'true'
           persist-credentials: true
 
@@ -45,8 +80,10 @@ jobs:
 
       - name: Commit and push formatting changes
         env:
-          PR_HEAD_REF: ${{ github.event.workflow_run.pull_requests[0].head.ref }}
+          PR_HEAD_REF: ${{ steps.pr.outputs.branch }}
         run: |
+          set -euo pipefail
+
           if git diff --quiet; then
             echo "dart format made no changes."
             exit 0
@@ -54,6 +91,7 @@ jobs:
 
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
           git add -u
           git commit -m "Apply dart format"
           git push origin "HEAD:refs/heads/${PR_HEAD_REF}"
