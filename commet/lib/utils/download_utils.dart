@@ -13,34 +13,12 @@ import 'package:flutter/foundation.dart';
 import 'package:intl/intl.dart';
 
 Future<Directory?> _getXdgPicturesDirectory() async {
-  final homeDirectory = Platform.environment["HOME"];
-  if (homeDirectory == null) return null;
-
-  final configHome =
-      Platform.environment["XDG_CONFIG_HOME"] ?? "$homeDirectory/.config";
-  final userDirsFile = File("$configHome/user-dirs.dirs");
-
-  var picturesPath = r"$HOME/Pictures";
-  if (await userDirsFile.exists()) {
-    final contents = await userDirsFile.readAsLines();
-    for (final line in contents) {
-      final match = RegExp(r'^\\s*XDG_PICTURES_DIR\\s*=\\s*(.*?)\\s*$')
-          .firstMatch(line);
-      if (match != null) {
-        picturesPath = match.group(1)!.replaceAll('"', '').replaceAll("'", '');
-        break;
-      }
-    }
-  }
-
-  picturesPath = picturesPath
-      .replaceAll(r"${HOME}", homeDirectory)
-      .replaceAll(r"$HOME", homeDirectory);
-  if (picturesPath == "~") {
-    picturesPath = homeDirectory;
-  } else if (picturesPath.startsWith("~/")) {
-    picturesPath = "$homeDirectory/${picturesPath.substring(2)}";
-  }
+  final environment = Platform.environment;
+  final picturesPath = environment["XDG_PICTURES_DIR"] ??
+      (environment["HOME"] == null
+          ? null
+          : "${environment["HOME"]}/Pictures");
+  if (picturesPath == null || picturesPath.isEmpty) return null;
 
   final directory = Directory(picturesPath);
   await directory.create(recursive: true);
