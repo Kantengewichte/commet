@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:commet/cache/file_provider.dart';
 import 'package:commet/client/attachment.dart';
@@ -95,6 +96,7 @@ class DownloadFileTask implements BackgroundTaskWithOptionalProgress {
       progress = amount;
 
       controller.add(());
+
     });
 
     if (PlatformUtils.isAndroid || kIsWeb) {
@@ -112,9 +114,19 @@ class DownloadFileTask implements BackgroundTaskWithOptionalProgress {
       }
     }
 
+    var initialDirectory = preferences.lastDownloadLocation.value;
+    if (initialDirectory == null && PlatformUtils.isLinux) {
+      final homeDirectory = Platform.environment["HOME"];
+      if (homeDirectory != null) {
+        final picturesDirectory = Directory("$homeDirectory/Pictures");
+        await picturesDirectory.create(recursive: true);
+        initialDirectory = picturesDirectory.path;
+      }
+    }
+
     destinationPath = await FilePicker.platform.saveFile(
       fileName: filename,
-      initialDirectory: preferences.lastDownloadLocation.value,
+      initialDirectory: initialDirectory,
     );
 
     if (destinationPath != null) {
