@@ -99,14 +99,14 @@ Future<void> main() async {
       'Decrypted event type: ${plaintext['type']}',
       'Message type: ${messageContent['msgtype']}',
       'Message body: ${messageContent['body']}',
-    ].join('\\n');
+    ].join('\n');
   } catch (error, stackTrace) {
-    result = 'FAIL: $error\\n$stackTrace';
+    result = 'FAIL: $error\n$stackTrace';
   } finally {
     try {
       await database?.close();
     } catch (error) {
-      result += '\\nDatabase close error: $error';
+      result += '\nDatabase close error: $error';
     }
   }
   report(result);

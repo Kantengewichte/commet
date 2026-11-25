@@ -63,7 +63,7 @@ self.addEventListener('message', async (event) => {
     self.__runMatrixWorkerDbProbe();
     port.postMessage(await resultPromise);
   } catch (error) {
-    port.postMessage('FAIL: ' + error + '\\n' + (error?.stack ?? ''));
+    port.postMessage('FAIL: ' + error + '\n' + (error?.stack ?? ''));
   } finally {
     port.close();
   }
