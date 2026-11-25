@@ -68,6 +68,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       issues: write
+      pull-requests: write
     steps:
       - name: Comment on the PR with the workflow link
         uses: actions/github-script@v8
