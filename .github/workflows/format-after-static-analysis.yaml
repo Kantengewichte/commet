@@ -1,0 +1,59 @@
+# Runs only after the static-analysis workflow fails on a pull request.
+# The format job waits for approval through the "format-approval" environment.
+name: format-after-static-analysis
+
+on:
+  workflow_run:
+    workflows:
+      - static-analysis
+    types:
+      - completed
+
+permissions:
+  contents: read
+
+jobs:
+  format:
+    name: Format PR after approval
+    if: >-
+      github.event.workflow_run.conclusion == 'failure' &&
+      github.event.workflow_run.event == 'pull_request' &&
+      github.event.workflow_run.pull_requests[0] != null &&
+      github.event.workflow_run.pull_requests[0].head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    environment:
+      name: format-approval
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout failed PR commit
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event.workflow_run.pull_requests[0].head.sha }}
+          submodules: 'true'
+          persist-credentials: true
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2.23.0
+        with:
+          flutter-version: '3.47.9'
+          channel: 'stable'
+
+      - name: Format Dart code
+        working-directory: commet
+        run: dart format .
+
+      - name: Commit and push formatting changes
+        env:
+          PR_HEAD_REF: ${{ github.event.workflow_run.pull_requests[0].head.ref }}
+        run: |
+          if git diff --quiet; then
+            echo "dart format made no changes."
+            exit 0
+          fi
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -u
+          git commit -m "Apply dart format"
+          git push origin "HEAD:refs/heads/${PR_HEAD_REF}"
