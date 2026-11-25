@@ -28,6 +28,7 @@ import 'package:commet/utils/debounce.dart';
 import 'package:commet/utils/event_bus.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/gestures.dart';
+import 'package:intl/intl.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -1035,6 +1036,12 @@ class MessageInputState extends State<MessageInput> {
     );
   }
 
+  String get labelPoll => Intl.message(
+    "Poll",
+    name: "message_input_poll_label",
+    desc: "Label for the poll button in the message input",
+  );
+
   Widget sendMessageButton() {
     bool canSend =
         controller.text.isNotEmpty || widget.attachments?.isNotEmpty == true;
@@ -1058,7 +1065,7 @@ class MessageInputState extends State<MessageInput> {
                     : [
                         if (pollComponent != null)
                           tiamat.ContextMenuItem(
-                            text: "Poll",
+                            text: labelPoll,
                             icon: Icons.poll,
                             onPressed: () async {
                               var createArgs =
@@ -1214,6 +1221,12 @@ class MessageInputState extends State<MessageInput> {
       (MediaQuery.of(context).size.height / (BuildConfig.MOBILE ? 2.5 : 3)) /
       preferences.appScale.value;
 
+  String get frequentlyUsedReactionsLabel => Intl.message(
+    "Frequently Used",
+    name: "frequentlyUsedReactionsLabel",
+    desc: "Label for the frequently used reactions section in the emoji picker",
+  );
+
   Widget buildEmojiPicker({bool skipIfNeverOpened = true}) {
     var recent = widget.client
         .getComponent<RecentEmoticonComponent>()
@@ -1226,7 +1239,7 @@ class MessageInputState extends State<MessageInput> {
         0,
         DynamicEmoticonPack(
           identifier: "dynamic_pack_frequently_used_typing",
-          displayName: "Frequently Used",
+          displayName: frequentlyUsedReactionsLabel,
           icon: Icons.schedule,
           emoticons: recent,
           usage: EmoticonUsage.all,

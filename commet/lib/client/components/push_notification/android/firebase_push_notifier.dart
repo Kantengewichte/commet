@@ -13,6 +13,7 @@ import 'package:commet/debug/log.dart';
 import 'package:commet/utils/event_bus.dart';
 import 'package:commet/main.dart';
 import 'package:commet/service/background_service_notifications/background_service_task_notification2.dart';
+import 'package:flutter/widgets.dart';
 
 // Manage these to enable / disable firebase
 // import 'package:firebase_core/firebase_core.dart';
@@ -31,9 +32,20 @@ Future<void> onForegroundMessage(dynamic message) async {
 
 @pragma('vm:entry-point')
 Future<void> _firebaseMessagingBackgroundHandler(dynamic message) async {
+  WidgetsFlutterBinding.ensureInitialized();
   Log.prefix = "fcm-background";
   Log.i("Got background message: ${message.data}");
   isHeadless = true;
+
+  try {
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
+  } catch (e) {
+    if (e.runtimeType.toString() == 'FirebaseException' &&
+        (e as dynamic).code != 'duplicate-app')
+      rethrow;
+  }
 
   EventBus.onReceivedPushNotificationData.add("${message.data}");
 
@@ -107,6 +119,9 @@ class FirebasePushNotifier implements Notifier {
     );
 
     Log.i("Initialized App");
+
+    await FirebaseMessaging.instance.setAutoInitEnabled(true);
+
     FirebaseMessaging.instance.onTokenRefresh.listen((event) {
       token = event;
       Log.i("Got new token: $token");
@@ -114,7 +129,14 @@ class FirebasePushNotifier implements Notifier {
       preferences.setPushGateway("push.kantengewichte.de");
     });
 
-    await FirebaseMessaging.instance.setAutoInitEnabled(true);
+    token = await FirebaseMessaging.instance.getToken();
+    if (token != null) {
+      Log.i("Got FCM token: $token");
+      await preferences.fcmKey.set(token);
+      await preferences.setPushGateway("push.kantengewichte.de");
+    } else {
+      Log.w("Firebase messaging did not return an FCM token");
+    }
 
     FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
     FirebaseMessaging.onMessage.listen(onForegroundMessage);

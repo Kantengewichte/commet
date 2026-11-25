@@ -205,4 +205,15 @@ class CommonStrings {
     desc: "Text that is placed between two or more options: [button1] or [button2]",
     name: "labelOr",
   );
+
+  static String get promptInvite => Intl.message(
+    "Invite",
+    desc: "Prompt to invite someone to a room or space",
+    name: "promptInvite",
+  );
+  static String get placeholderBlockedUser => Intl.message(
+    "Blocked User",
+    desc: "Text that is shown in place of another users name, when that user has been blocked",
+    name: "placeholderBlockedUser",
+  );
 }

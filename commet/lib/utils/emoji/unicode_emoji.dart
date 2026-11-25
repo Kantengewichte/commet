@@ -7,6 +7,7 @@ import 'package:commet/utils/emoji/unicode_emoji_data_groups.g.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:matrix/matrix.dart';
+import 'package:intl/intl.dart';
 
 class UnicodeEmojis {
   static List<UnicodeEmoticonPack>? packs;
@@ -15,55 +16,66 @@ class UnicodeEmojis {
     packs = List.from([
       UnicodeEmoticonPack(
         dataPacks: [UnicodeEmojiGroups.GROUP_0],
-        getLocalisedName: () => "Smileys",
+        getLocalisedName: () =>
+            Intl.message("Smileys", name: "emoji_group_smileys"),
         identifier: "chat.commet.commetapp.internal_emoticons.group_0",
         icon: Icons.emoji_emotions,
       ),
       UnicodeEmoticonPack(
         dataPacks: [UnicodeEmojiGroups.GROUP_1],
-        getLocalisedName: () => "People",
+        getLocalisedName: () =>
+            Intl.message("People", name: "emoji_group_people"),
         identifier: "chat.commet.commetapp.internal_emoticons.group_1",
         icon: Icons.emoji_people,
       ),
       UnicodeEmoticonPack(
         dataPacks: [UnicodeEmojiGroups.GROUP_3],
-        getLocalisedName: () => "Animals & Nature",
+        getLocalisedName: () => Intl.message(
+          "Animals & Nature",
+          name: "emoji_group_animals_nature",
+        ),
         identifier: "chat.commet.commetapp.internal_emoticons.group_3",
         icon: Icons.emoji_nature_rounded,
       ),
       UnicodeEmoticonPack(
         dataPacks: [UnicodeEmojiGroups.GROUP_4],
-        getLocalisedName: () => "Food & Drink",
+        getLocalisedName: () =>
+            Intl.message("Food & Drink", name: "emoji_group_food_drink"),
         identifier: "chat.commet.commetapp.internal_emoticons.group_4",
         icon: Icons.emoji_food_beverage,
       ),
       UnicodeEmoticonPack(
         dataPacks: [UnicodeEmojiGroups.GROUP_5],
-        getLocalisedName: () => "Travel & Places",
+        getLocalisedName: () =>
+            Intl.message("Travel & Places", name: "emoji_group_travel_places"),
         identifier: "chat.commet.commetapp.internal_emoticons.group_5",
         icon: Icons.emoji_transportation,
       ),
       UnicodeEmoticonPack(
         dataPacks: [UnicodeEmojiGroups.GROUP_6],
-        getLocalisedName: () => "Activities",
+        getLocalisedName: () =>
+            Intl.message("Activities", name: "emoji_group_activities"),
         identifier: "chat.commet.commetapp.internal_emoticons.group_6",
         icon: Icons.emoji_events,
       ),
       UnicodeEmoticonPack(
         dataPacks: [UnicodeEmojiGroups.GROUP_7],
-        getLocalisedName: () => "Objects",
+        getLocalisedName: () =>
+            Intl.message("Objects", name: "emoji_group_objects"),
         identifier: "chat.commet.commetapp.internal_emoticons.group_7",
         icon: Icons.emoji_objects,
       ),
       UnicodeEmoticonPack(
         dataPacks: [UnicodeEmojiGroups.GROUP_8],
-        getLocalisedName: () => "Symbols",
+        getLocalisedName: () =>
+            Intl.message("Symbols", name: "emoji_group_symbols"),
         identifier: "chat.commet.commetapp.internal_emoticons.group_8",
         icon: Icons.emoji_symbols,
       ),
       UnicodeEmoticonPack(
         dataPacks: [UnicodeEmojiGroups.GROUP_9],
-        getLocalisedName: () => "Flags",
+        getLocalisedName: () =>
+            Intl.message("Flags", name: "emoji_group_flags"),
         identifier: "chat.commet.commetapp.internal_emoticons.group_9",
         icon: Icons.emoji_flags,
       ),

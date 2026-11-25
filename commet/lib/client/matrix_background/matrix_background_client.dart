@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:commet/client/auth.dart';
@@ -309,4 +310,36 @@ class MatrixBackgroundClient implements Client {
 
   @override
   Future<void> setPresence(PresenceStatus status) async {}
+  Future<void> blockUser(String userId) {
+    throw UnimplementedError();
+  }
+
+  @override
+  bool isUserBlocked(String userId) {
+    for (var ev in accountData) {
+      if (ev.type == "m.ignored_user_list") {
+        Log.i("account data: ${ev.content}");
+        var content = jsonDecode(ev.content) as Map<String, dynamic>;
+        var blockedUsers =
+            content.tryGetMap<String, Object?>('ignored_users')?.keys ??
+            <String>[];
+
+        return blockedUsers.contains(userId);
+      }
+    }
+
+    return false;
+  }
+
+  @override
+  Future<void> unblockUser(String userId) {
+    // TODO: implement unblockUser
+    throw UnimplementedError();
+  }
+
+  @override
+  List<String> blockedUsers() {
+    // TODO: implement blockedUsers
+    throw UnimplementedError();
+  }
 }

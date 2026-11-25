@@ -98,6 +98,7 @@ class TimelineViewEntryState extends State<TimelineViewEntry>
   bool isThreadReply = false;
   bool highlighted = false;
   bool redacted = false;
+  bool senderIsBlocked = false;
 
   TimelineEventWidgetCollapseType? collapse = null;
 
@@ -139,6 +140,8 @@ class TimelineViewEntryState extends State<TimelineViewEntry>
   void loadState(int eventIndex) {
     var event = widget.timeline.events[eventIndex];
     redacted = widget.timeline.isEventRedacted(event);
+
+    senderIsBlocked = widget.timeline.client.isUserBlocked(event.senderId);
 
     var receipts = widget.timeline.room
         .getComponent<ReadReceiptComponent>()
@@ -299,6 +302,12 @@ class TimelineViewEntryState extends State<TimelineViewEntry>
     }
   }
 
+  String get labelAddReaction => Intl.message(
+    "Add Reaction",
+    name: "labelAddReaction",
+    desc: "Label for the add reaction button in the context menu",
+  );
+
   @override
   Widget build(BuildContext context) {
     BenchmarkValues.numTimelineEventsBuilt += 1;
@@ -373,6 +382,10 @@ class TimelineViewEntryState extends State<TimelineViewEntry>
           ),
         ],
       );
+    }
+
+    if (result != null && senderIsBlocked) {
+      result = Opacity(opacity: 0.5, child: result);
     }
 
     if (result == null) {
@@ -454,7 +467,7 @@ class TimelineViewEntryState extends State<TimelineViewEntry>
           items: [
             if (menu.addReactionAction != null)
               ContextMenuItem(
-                text: "Add Reaction",
+                text: labelAddReaction,
                 customBuilder: (context, onClick, {closeMenu}) => Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: Row(
@@ -705,10 +718,16 @@ class TimelineViewEntryState extends State<TimelineViewEntry>
       });
   }
 
+  String get labelReadReceipts => Intl.message(
+    "Read Receipts",
+    desc: "Title for the read receipts dialog",
+    name: "labelReadReceipts",
+  );
+
   onReadReceiptsTapped() {
     AdaptiveDialog.show(
       context,
-      title: "Read Receipts",
+      title: labelReadReceipts,
       builder: (context) {
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,

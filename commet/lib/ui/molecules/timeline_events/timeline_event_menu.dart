@@ -22,6 +22,7 @@ import 'package:commet/ui/atoms/code_block.dart';
 import 'package:commet/ui/molecules/emoji_picker.dart';
 import 'package:commet/ui/molecules/gif_picker.dart';
 import 'package:commet/ui/molecules/notification_debugger.dart';
+import 'package:commet/ui/molecules/timeline_events/timeline_event_view_single.dart';
 import 'package:commet/ui/navigation/adaptive_dialog.dart';
 import 'package:commet/utils/autofill_utils.dart';
 import 'package:commet/utils/common_strings.dart';
@@ -96,10 +97,28 @@ class TimelineEventMenu {
     name: "promptEndPoll",
   );
 
+  String get promptEndPollConfirmation => Intl.message(
+    "Are you sure you want to end the poll?",
+    desc: "Prompt the user to confirm ending a poll",
+    name: "promptEndPollConfirmation",
+  );
+
   String get promptFavoriteGif => Intl.message(
     "Favorite GIF",
     desc: "Prompt the user to mark a gif as a favorite",
     name: "promptFavoriteGif",
+  );
+
+  String get copyLinkText => Intl.message(
+    "Copy Link",
+    name: "copyLinkText",
+    desc: "Button text for copying a link",
+  );
+
+  String get frequentlyUsedReactionsLabel => Intl.message(
+    "Frequently Used",
+    name: "frequentlyUsedReactionsLabel",
+    desc: "Label for the frequently used reactions section in the emoji picker",
   );
 
   TimelineEventMenu({
@@ -128,6 +147,8 @@ class TimelineEventMenu {
     bool canCancelSend = event.status != TimelineEventStatus.synced;
     bool canFavoriteGif = false;
     bool canUnfavoriteGif = false;
+
+    bool isBlocked = timeline.client.isUserBlocked(event.senderId);
 
     var effects = timeline.room.client.getComponent<MessageEffectComponent>();
     var emoticons = timeline.room.getComponent<RoomEmoticonComponent>();
@@ -218,7 +239,7 @@ class TimelineEventMenu {
           0,
           DynamicEmoticonPack(
             identifier: "dynamic_pack_frequently_used_reactions",
-            displayName: "Frequently Used",
+            displayName: frequentlyUsedReactionsLabel,
             icon: Icons.schedule,
             emoticons: recent,
             usage: EmoticonUsage.all,
@@ -250,6 +271,23 @@ class TimelineEventMenu {
     }
 
     primaryActions = [
+      if (isBlocked)
+        TimelineEventMenuEntry(
+          name: "Show Message",
+          icon: Icons.message,
+          action: (context) {
+            AdaptiveDialog.show(
+              context,
+              builder: (context) {
+                return TimelineEventViewSingle(
+                  room: timeline.room,
+                  event: event,
+                  ignoreBlockStatus: true,
+                );
+              },
+            );
+          },
+        ),
       if (MediaQuery.of(context).mobile) ...[
         if (canFavoriteGif)
           TimelineEventMenuEntry(
@@ -278,7 +316,7 @@ class TimelineEventMenu {
             if (await AdaptiveDialog.confirmation(
                   context,
                   title: promptEndPoll,
-                  prompt: "Are you sure you want to end the poll?",
+                  prompt: promptEndPollConfirmation,
                 ) ==
                 true)
               polls?.endPoll(timeline.room, event);
@@ -424,7 +462,7 @@ class TimelineEventMenu {
         ),
       if (links?.isNotEmpty == true)
         TimelineEventMenuEntry(
-          name: "Copy Link",
+          name: copyLinkText,
           icon: Icons.link,
           action: (context) async {
             if (links!.length > 1) {

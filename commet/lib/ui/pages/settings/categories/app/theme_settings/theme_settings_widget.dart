@@ -45,6 +45,12 @@ class _ThemeListWidgetState extends State<ThemeListWidget> {
   late List<_ThemeEntry> entries;
   StreamSubscription? customThemesDirSub;
 
+  String get labelPickThemeArchiveFile => Intl.message(
+    "Pick theme archive file",
+    name: "labelPickThemeArchiveFile",
+    desc: "Label for the file picker dialog when picking a theme archive file",
+  );
+
   String get labelThemeDark => Intl.message(
     "Dark Theme",
     name: "labelThemeDark",
@@ -194,7 +200,7 @@ class _ThemeListWidgetState extends State<ThemeListWidget> {
                   List<PlatformFile> result = await FilePicker.pickFiles(
                     type: FileType.custom,
                     allowedExtensions: ["zip"],
-                    dialogTitle: "Pick theme archive file",
+                    dialogTitle: labelPickThemeArchiveFile,
                   );
 
                   var file = result.firstOrNull;

@@ -4,6 +4,7 @@ import 'package:commet/config/layout_config.dart';
 import 'package:commet/ui/molecules/user_list.dart';
 import 'package:flutter/material.dart';
 import 'package:tiamat/tiamat.dart' as tiamat;
+import 'package:intl/intl.dart';
 
 class RoomMembersListWidget extends StatefulWidget {
   const RoomMembersListWidget(this.room, {super.key});
@@ -25,12 +26,18 @@ class _RoomMembersListWidgetState extends State<RoomMembersListWidget> {
     super.initState();
   }
 
+  String get labelRoomMembers => Intl.message(
+    "Room Members",
+    name: "labelRoomMembers",
+    desc: "Label for the room members list in the room members list widget",
+  );
+
   @override
   Widget build(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        if (!isDirectMessage) const tiamat.Text.labelLow("Room Members"),
+        if (!isDirectMessage) tiamat.Text.labelLow(labelRoomMembers),
         Expanded(
           child: SizedBox(
             width: MediaQuery.of(context).desktop

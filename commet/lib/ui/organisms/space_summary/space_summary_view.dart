@@ -327,7 +327,7 @@ class SpaceSummaryViewState extends State<SpaceSummaryView> {
 
   Widget buildInviteButton() {
     return tiamat.Tooltip(
-      text: "Invite",
+      text: CommonStrings.promptInvite,
       preferredDirection: AxisDirection.left,
       child: tiamat.CircleButton(
         key: spaceSettingsButtonKey,

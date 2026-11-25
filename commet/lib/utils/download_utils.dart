@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:commet/cache/file_provider.dart';
 import 'package:commet/client/attachment.dart';
@@ -9,6 +10,19 @@ import 'package:commet/utils/background_tasks/background_task_manager.dart';
 import 'package:commet/utils/file_utils.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
+import 'package:intl/intl.dart';
+
+Future<Directory?> _getXdgPicturesDirectory() async {
+  final environment = Platform.environment;
+  final picturesPath =
+      environment["XDG_PICTURES_DIR"] ??
+      (environment["HOME"] == null ? null : "${environment["HOME"]}/Pictures");
+  if (picturesPath == null || picturesPath.isEmpty) return null;
+
+  final directory = Directory(picturesPath);
+  await directory.create(recursive: true);
+  return directory;
+}
 
 class DownloadFileTask implements BackgroundTaskWithOptionalProgress {
   FileProvider file;
@@ -45,10 +59,17 @@ class DownloadFileTask implements BackgroundTaskWithOptionalProgress {
   @override
   Stream<void> get statusChanged => controller.stream;
 
+  String labelTaskStatus(String filename) => Intl.message(
+    "Downloading '$filename'...",
+    desc: "Label for background task when downloading a file",
+    name: "labelBackgroundTaskStatusDownloadingFile",
+    args: [filename],
+  );
+
   DownloadFileTask(this.file, String? fileName) {
     filename = fileName ?? "unnamed";
 
-    this.label = "Downloading '$filename'...";
+    this.label = labelTaskStatus(filename);
 
     action = navigateToFile;
   }
@@ -104,11 +125,16 @@ class DownloadFileTask implements BackgroundTaskWithOptionalProgress {
       }
     }
 
+    var initialDirectory = preferences.lastDownloadLocation.value;
+    if (initialDirectory == null && PlatformUtils.isLinux) {
+      initialDirectory = (await _getXdgPicturesDirectory())?.path;
+    }
+
     destinationPath = await FilePicker.saveFile(
       fileName: filename,
-      initialDirectory: preferences.lastDownloadLocation.value,
+      initialDirectory: initialDirectory,
       bytes: Uint8List.fromList([]),
-    ).toString();
+    );
 
     if (destinationPath != null) {
       await file.save(destinationPath!);

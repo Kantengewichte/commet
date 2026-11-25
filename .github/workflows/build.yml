@@ -38,6 +38,14 @@ jobs:
   build-windows:
     runs-on: windows-2022
     steps:
+      - name: Enable Windows long paths
+        shell: pwsh
+        run: |
+          Set-ItemProperty `
+            -Path "HKLM:\SYSTEM\CurrentControlSet\Control\FileSystem" `
+            -Name LongPathsEnabled `
+            -Value 1
+            
       - name: Checkout
         uses: actions/checkout@v7
         with:
@@ -63,6 +71,8 @@ jobs:
           dart run scripts/codegen.dart
 
       - name: Build Windows App
+        env:    
+          TrackFileAccess: 'false'
         run: |
           cd .\commet
           dart run scripts/build_release.dart --platform windows --version_tag 'v0.0.0-artifact' --git_hash ${{ github.sha }}
@@ -281,7 +291,7 @@ jobs:
       - name: Bypass degraded Ubuntu mirror
         run: |
           grep -Eq '^https://archive\.ubuntu\.com/ubuntu/([[:space:]]|$)' /etc/apt/apt-mirrors.txt
-          sudo sed -i -E '\@^https?://azure\.archive\.ubuntu\.com/ubuntu/([[:space:]]|$)@d' /etc/apt/apt-mirrors.txt
+          sudo sed -i -E '\@^https?://azure\.archive\.ubuntu\.com/ubuntu/([[:space:]]|$)@d; \@^https?://[^/]+\.ec2\.archive\.ubuntu\.com/ubuntu/([[:space:]]|$)@d' /etc/apt/apt-mirrors.txt
           cat /etc/apt/apt-mirrors.txt
 
       - name: Setup Tools
@@ -367,7 +377,7 @@ jobs:
       - name: Bypass degraded Ubuntu mirror
         run: |
           grep -Eq '^https://archive\.ubuntu\.com/ubuntu/([[:space:]]|$)' /etc/apt/apt-mirrors.txt
-          sudo sed -i -E '\@^https?://azure\.archive\.ubuntu\.com/ubuntu/([[:space:]]|$)@d' /etc/apt/apt-mirrors.txt
+          sudo sed -i -E '\@^https?://azure\.archive\.ubuntu\.com/ubuntu/([[:space:]]|$)@d; \@^https?://[^/]+\.ec2\.archive\.ubuntu\.com/ubuntu/([[:space:]]|$)@d' /etc/apt/apt-mirrors.txt
           cat /etc/apt/apt-mirrors.txt
 
       - name: Setup Tools
@@ -401,7 +411,11 @@ jobs:
           overwrite: true
 
   build-flatpak:
-    runs-on: ubuntu-latest
+    continue-on-error: true
+    strategy:
+      matrix:
+        os: [ubuntu-24.04-arm, ubuntu-24.04]
+    runs-on: ${{ matrix.os }}
     steps:
       - name: Aggressive cleanup
         run: |
@@ -437,24 +451,30 @@ jobs:
           ref: ${{ github.event.pull_request.head.sha }}
           allow-unsafe-pr-checkout: true
 
-      - name: Setup Flutter 
-        uses: subosito/flutter-action@v2.23.0
-        with:
-          flutter-version: '3.47.9'
-          channel: 'stable'
-
       - name: Bypass degraded Ubuntu mirror
         run: |
           grep -Eq '^https://archive\.ubuntu\.com/ubuntu/([[:space:]]|$)' /etc/apt/apt-mirrors.txt
-          sudo sed -i -E '\@^https?://azure\.archive\.ubuntu\.com/ubuntu/([[:space:]]|$)@d' /etc/apt/apt-mirrors.txt
+          sudo sed -i -E '\@^https?://azure\.archive\.ubuntu\.com/ubuntu/([[:space:]]|$)@d; \@^https?://[^/]+\.ec2\.archive\.ubuntu\.com/ubuntu/([[:space:]]|$)@d' /etc/apt/apt-mirrors.txt
           cat /etc/apt/apt-mirrors.txt
 
       - name: Setup Tools
         timeout-minutes: 5
         run: |
           sudo apt-get update -y
-          sudo apt-get install -y ninja-build libgtk-3-dev libmpv-dev mpv ffmpeg libmimalloc-dev flatpak-builder flatpak webkit2gtk-4.1 keybinder-3.0 libayatana-appindicator3-dev libayatana-ido3-dev
-        
+          sudo apt-get install -y ninja-build libgtk-3-dev libmpv-dev mpv ffmpeg libmimalloc-dev flatpak-builder flatpak webkit2gtk-4.1 keybinder-3.0 libayatana-appindicator3-dev libayatana-ido3-dev 
+      
+      # https://github.com/subosito/flutter-action/issues/345#issuecomment-2638225681
+      - name: Clone Flutter
+        run: |
+          # Shallow-clone Flutter to reduce download size
+          git clone --depth 1 --branch 3.47.9 https://github.com/flutter/flutter.git $RUNNER_TEMP/flutter
+
+          # Add Flutter to PATH
+          echo "$RUNNER_TEMP/flutter/bin" >> $GITHUB_PATH
+      
+      - name: Install Flutter
+        run: flutter doctor
+
       - name: Code Generation
         run: |
           cd $PROJECT_PATH
@@ -467,12 +487,16 @@ jobs:
           cd $PROJECT_PATH
           dart run scripts/build_release.dart --platform linux --version_tag 'v0.0.0-artifact' --git_hash ${{ github.sha }} --build_detail flatpak
 
+      - name: Run App
+        run: |
+          ldd $PROJECT_PATH/build/linux/${{ runner.arch == 'ARM64' && 'arm64' || 'x64' }}/release/bundle/commet
+        
       - name: Create Flatpak
         run: | 
           sudo flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
           sudo flatpak install -y flathub org.gnome.Platform//51 org.gnome.Sdk//51
           mkdir -p commet/linux/flatpak/commet
-          cp -r $PROJECT_PATH/build/linux/x64/release/bundle $PROJECT_PATH/linux/flatpak/commet/bundle
+          cp -r $PROJECT_PATH/build/linux/${{ runner.arch == 'ARM64' && 'arm64' || 'x64' }}/release/bundle $PROJECT_PATH/linux/flatpak/commet/bundle
           version=$(echo 'v0.0.0-artifact' | grep -oP '[0-9]+([.][0-9]+)+')
           echo $version
           cd $PROJECT_PATH/linux/flatpak
@@ -484,7 +508,7 @@ jobs:
       - name: Upload Artifact
         uses: actions/upload-artifact@v7
         with:
-          name: chat.commet.commetapp.flatpak
+          name: chat.commet.commetapp.${{ runner.arch == 'ARM64' && 'arm64' || 'x64' }}.flatpak
           path: commet/linux/flatpak/chat.commet.commetapp.flatpak
           retention-days: 1
           overwrite: true
@@ -508,7 +532,7 @@ jobs:
       - name: Bypass degraded Ubuntu mirror
         run: |
           grep -Eq '^https://archive\.ubuntu\.com/ubuntu/([[:space:]]|$)' /etc/apt/apt-mirrors.txt
-          sudo sed -i -E '\@^https?://azure\.archive\.ubuntu\.com/ubuntu/([[:space:]]|$)@d' /etc/apt/apt-mirrors.txt
+          sudo sed -i -E '\@^https?://azure\.archive\.ubuntu\.com/ubuntu/([[:space:]]|$)@d; \@^https?://[^/]+\.ec2\.archive\.ubuntu\.com/ubuntu/([[:space:]]|$)@d' /etc/apt/apt-mirrors.txt
           cat /etc/apt/apt-mirrors.txt
 
       - name: Setup Tools

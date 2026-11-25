@@ -20,6 +20,7 @@ import 'package:commet_calendar_widget/calendar.dart';
 import 'package:flutter/material.dart';
 import 'package:tiamat/atoms/context_menu.dart';
 import 'package:tiamat/tiamat.dart' as tiamat;
+import 'package:intl/intl.dart';
 
 class RoomTextButton extends StatefulWidget {
   const RoomTextButton(
@@ -35,6 +36,42 @@ class RoomTextButton extends StatefulWidget {
   @override
   State<RoomTextButton> createState() => _RoomTextButtonState();
 
+  static String get labelContextMenuMarkAsRead => Intl.message(
+    "Mark as Read",
+    desc: "Context menu item for marking a room as read",
+    name: "labelContextMenuMarkAsRead",
+  );
+
+  static String get labelContextMenuSetAsFavorite => Intl.message(
+    "Set as Favorite",
+    desc: "Context menu item for setting a room as favorite",
+    name: "labelContextMenuSetAsFavorite",
+  );
+
+  static String get labelContextMenuUnfavorite => Intl.message(
+    "Unfavorite",
+    desc: "Context menu item for unfavoriting a room",
+    name: "labelContextMenuUnfavorite",
+  );
+
+  static String get labelContextMenuOpenAsTextChat => Intl.message(
+    "Open as Text Chat",
+    desc: "Context menu item for opening a special room as a text chat",
+    name: "labelContextMenuOpenAsTextChat",
+  );
+
+  static String get labelContextMenuClearMembershipStatus => Intl.message(
+    "Clear Membership Status",
+    desc: "Context menu item for clearing membership status in a VoIP room",
+    name: "labelContextMenuClearMembershipStatus",
+  );
+
+  static String get labelContextMenuSettings => Intl.message(
+    "Settings",
+    desc: "Context menu item for opening room settings",
+    name: "labelContextMenuSettings",
+  );
+
   static List<ContextMenuItem> createRoomContextMenuItems(
     BuildContext context,
     Room room,
@@ -42,25 +79,25 @@ class RoomTextButton extends StatefulWidget {
     var voipRoom = room.getComponent<VoipRoomComponent>();
     return [
       ContextMenuItem(
-        text: "Mark as Read",
+        text: labelContextMenuMarkAsRead,
         icon: Icons.visibility,
         onPressed: () => room.markAsRead(),
       ),
       if (!room.isFavorite)
         ContextMenuItem(
-          text: "Set as Favorite",
+          text: labelContextMenuSetAsFavorite,
           icon: Icons.favorite,
           onPressed: () => room.setAsFavorite(true),
         ),
       if (room.isFavorite)
         ContextMenuItem(
-          text: "Unfavorite",
+          text: labelContextMenuUnfavorite,
           icon: Icons.heart_broken_outlined,
           onPressed: () => room.setAsFavorite(false),
         ),
       if (room.isSpecialRoomType)
         ContextMenuItem(
-          text: "Open as Text Chat",
+          text: labelContextMenuOpenAsTextChat,
           icon: Icons.tag,
           onPressed: () => EventBus.doOpenRoom(
             room.identifier,
@@ -70,12 +107,12 @@ class RoomTextButton extends StatefulWidget {
         ),
       if (voipRoom != null && preferences.developerMode.value)
         ContextMenuItem(
-          text: "Clear Membership Status",
+          text: labelContextMenuClearMembershipStatus,
           icon: Icons.call_end,
           onPressed: () => voipRoom.clearAllCallMembershipStatus(),
         ),
       ContextMenuItem(
-        text: "Settings",
+        text: labelContextMenuSettings,
         icon: Icons.settings,
         onPressed: () {
           NavigationUtils.navigateTo(context, RoomSettingsPage(room: room));

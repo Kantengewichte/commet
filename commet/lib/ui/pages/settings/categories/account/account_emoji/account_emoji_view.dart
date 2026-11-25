@@ -5,6 +5,7 @@ import 'package:commet/client/components/emoticon/emoticon_component.dart';
 import 'package:commet/main.dart';
 import 'package:flutter/material.dart';
 import 'package:tiamat/tiamat.dart' as tiamat;
+import 'package:intl/intl.dart';
 
 class AccountEmojiView extends StatefulWidget {
   const AccountEmojiView(this.component, {super.key});
@@ -30,12 +31,18 @@ class _AccountEmojiViewState extends State<AccountEmojiView> {
     });
   }
 
+  String get labelFavoritePacks => Intl.message(
+    "Favorite Packs",
+    desc: "Label for the favorite packs section in the account emoji settings page",
+    name: "labelFavoritePacks",
+  );
+
   @override
   Widget build(BuildContext context) {
     return Column(
       children: [
         tiamat.Panel(
-          header: "Favorite Packs",
+          header: labelFavoritePacks,
           mode: tiamat.TileType.surfaceContainerLow,
           child: Column(
             children: globalPacks.map((e) => packSummary(e)).toList(),

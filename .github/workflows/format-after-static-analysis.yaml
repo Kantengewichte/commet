@@ -1,0 +1,188 @@
+# Runs only after static analysis fails on a same-repository pull request.
+# The PR is notified before the format job waits for approval through the
+# "format-approval" environment.
+name: format-after-static-analysis
+
+on:
+  workflow_run:
+    workflows:
+      - static-analysis
+    types:
+      - completed
+
+permissions:
+  contents: read
+
+jobs:
+  resolve-pr:
+    name: Find failed PR
+    if: >-
+      github.event.workflow_run.conclusion == 'failure' &&
+      github.event.workflow_run.event == 'pull_request'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: read
+    outputs:
+      number: ${{ steps.pr.outputs.number }}
+      branch: ${{ steps.pr.outputs.branch }}
+    steps:
+      - name: Find and validate the failed PR
+        id: pr
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          WORKFLOW_HEAD_SHA: ${{ github.event.workflow_run.head_sha }}
+        run: |
+          set -euo pipefail
+
+          prs=$(gh api \
+            "repos/${GITHUB_REPOSITORY}/commits/${WORKFLOW_HEAD_SHA}/pulls")
+
+          pr=$(echo "$prs" | jq -r \
+            --arg repo "$GITHUB_REPOSITORY" \
+            --arg sha "$WORKFLOW_HEAD_SHA" \
+            '[.[] |
+              select(
+                .state == "open" and
+                .head.repo.full_name == $repo and
+                .head.sha == $sha and
+                .base.repo.full_name == $repo
+              )
+            ] | first // empty')
+
+          if [ -z "$pr" ]; then
+            echo "No matching open, same-repository PR found. Refusing to push."
+            exit 1
+          fi
+
+          pr_number=$(echo "$pr" | jq -r '.number')
+          pr_branch=$(echo "$pr" | jq -r '.head.ref')
+
+          echo "Found PR #${pr_number}, branch ${pr_branch}"
+          echo "number=${pr_number}" >> "$GITHUB_OUTPUT"
+          echo "branch=${pr_branch}" >> "$GITHUB_OUTPUT"
+
+  notify-pr:
+    name: Post formatting approval link
+    needs: resolve-pr
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+      pull-requests: write
+    steps:
+      - name: Comment on the PR with the workflow link
+        uses: actions/github-script@v8
+        env:
+          PR_NUMBER: ${{ needs.resolve-pr.outputs.number }}
+        with:
+          script: |
+            const issue_number = Number(process.env.PR_NUMBER);
+            const marker = '<!-- commet-format-approval -->';
+            const runUrl = `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`;
+            const body = [
+              marker,
+              '### Formatting changes need approval',
+              '',
+              'Static analysis found Dart formatting changes that can be applied automatically.',
+              '',
+              'Please open the formatting workflow and approve the **format-approval** deployment:',
+              '',
+              `[Review formatting workflow run](${runUrl})`,
+              '',
+              'No changes will be pushed until the deployment is approved.',
+            ].join('\n');
+
+            const comments = await github.paginate(
+              github.rest.issues.listComments,
+              { ...context.repo, issue_number, per_page: 100 },
+            );
+            const existing = comments.find(comment =>
+              comment.user?.type === 'Bot' &&
+              comment.body?.includes(marker)
+            );
+
+            if (existing) {
+              await github.rest.issues.updateComment({
+                ...context.repo,
+                comment_id: existing.id,
+                body,
+              });
+              core.info(`Updated formatting approval comment ${existing.id}.`);
+            } else {
+              await github.rest.issues.createComment({
+                ...context.repo,
+                issue_number,
+                body,
+              });
+              core.info('Posted formatting approval comment.');
+            }
+
+  format:
+    name: Format PR after approval
+    needs:
+      - resolve-pr
+      - notify-pr
+    runs-on: ubuntu-latest
+    environment:
+      name: format-approval
+    permissions:
+      contents: read
+      pull-requests: read
+
+    steps:
+      - name: Checkout failed PR commit
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event.workflow_run.head_sha }}
+          submodules: 'true'
+          persist-credentials: false
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2.23.0
+        with:
+          flutter-version: '3.47.9'
+          channel: 'stable'
+
+      - name: Format Dart code
+        id: format
+        working-directory: commet
+        run: |
+          set -euo pipefail
+          dart format .
+          if git -C "$GITHUB_WORKSPACE" diff --quiet; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            echo "dart format made no changes."
+          else
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      # Mint the narrowly-scoped App token only after formatting is complete.
+      # Pushes made with this token can trigger the PR's normal synchronize workflows.
+      - name: Create GitHub App token
+        if: steps.format.outputs.changed == 'true'
+        id: app-token
+        uses: actions/create-github-app-token@v2
+        with:
+          app-id: ${{ secrets.APP_ID }}
+          private-key: ${{ secrets.APP_PRIVATE_KEY }}
+          owner: ${{ github.repository_owner }}
+          repositories: commet
+          permission-contents: write
+
+      - name: Commit and push formatting changes
+        if: steps.format.outputs.changed == 'true'
+        env:
+          PR_HEAD_REF: ${{ needs.resolve-pr.outputs.branch }}
+          APP_TOKEN: ${{ steps.app-token.outputs.token }}
+        run: |
+          set -euo pipefail
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          git add -u
+          git commit -m "Apply dart format"
+
+          # Keep the short-lived token out of the remote URL and persisted git config.
+          git -c credential.helper='!f() { echo "username=x-access-token"; echo "password=$APP_TOKEN"; }; f' \
+            push origin "HEAD:refs/heads/${PR_HEAD_REF}"
