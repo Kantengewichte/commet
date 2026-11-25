@@ -1,5 +1,6 @@
 # Runs only after static analysis fails on a same-repository pull request.
-# The format job waits for approval through the "format-approval" environment.
+# The PR is notified before the format job waits for approval through the
+# "format-approval" environment.
 name: format-after-static-analysis
 
 on:
@@ -13,18 +14,18 @@ permissions:
   contents: read
 
 jobs:
-  format:
-    name: Format PR after approval
+  resolve-pr:
+    name: Find failed PR
     if: >-
       github.event.workflow_run.conclusion == 'failure' &&
       github.event.workflow_run.event == 'pull_request'
     runs-on: ubuntu-latest
-    environment:
-      name: format-approval
     permissions:
       contents: read
       pull-requests: read
-
+    outputs:
+      number: ${{ steps.pr.outputs.number }}
+      branch: ${{ steps.pr.outputs.branch }}
     steps:
       - name: Find and validate the failed PR
         id: pr
@@ -61,6 +62,73 @@ jobs:
           echo "number=${pr_number}" >> "$GITHUB_OUTPUT"
           echo "branch=${pr_branch}" >> "$GITHUB_OUTPUT"
 
+  notify-pr:
+    name: Post formatting approval link
+    needs: resolve-pr
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+    steps:
+      - name: Comment on the PR with the workflow link
+        uses: actions/github-script@v8
+        env:
+          PR_NUMBER: ${{ needs.resolve-pr.outputs.number }}
+        with:
+          script: |
+            const issue_number = Number(process.env.PR_NUMBER);
+            const marker = '<!-- commet-format-approval -->';
+            const runUrl = `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`;
+            const body = [
+              marker,
+              '### Formatting changes need approval',
+              '',
+              'Static analysis found Dart formatting changes that can be applied automatically.',
+              '',
+              'Please open the formatting workflow and approve the **format-approval** deployment:',
+              '',
+              `[Review formatting workflow run](${runUrl})`,
+              '',
+              'No changes will be pushed until the deployment is approved.',
+            ].join('\n');
+
+            const comments = await github.paginate(
+              github.rest.issues.listComments,
+              { ...context.repo, issue_number, per_page: 100 },
+            );
+            const existing = comments.find(comment =>
+              comment.user?.type === 'Bot' &&
+              comment.body?.includes(marker)
+            );
+
+            if (existing) {
+              await github.rest.issues.updateComment({
+                ...context.repo,
+                comment_id: existing.id,
+                body,
+              });
+              core.info(`Updated formatting approval comment ${existing.id}.`);
+            } else {
+              await github.rest.issues.createComment({
+                ...context.repo,
+                issue_number,
+                body,
+              });
+              core.info('Posted formatting approval comment.');
+            }
+
+  format:
+    name: Format PR after approval
+    needs:
+      - resolve-pr
+      - notify-pr
+    runs-on: ubuntu-latest
+    environment:
+      name: format-approval
+    permissions:
+      contents: read
+      pull-requests: read
+
+    steps:
       - name: Checkout failed PR commit
         uses: actions/checkout@v7
         with:
@@ -103,7 +171,7 @@ jobs:
       - name: Commit and push formatting changes
         if: steps.format.outputs.changed == 'true'
         env:
-          PR_HEAD_REF: ${{ steps.pr.outputs.branch }}
+          PR_HEAD_REF: ${{ needs.resolve-pr.outputs.branch }}
           APP_TOKEN: ${{ steps.app-token.outputs.token }}
         run: |
           set -euo pipefail
