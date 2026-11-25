@@ -1,39 +1,28 @@
-/* Temporary, isolated service worker for the Vodozemac WASM probe.
- *
- * Register this worker with scope "/vodozemac-probe/" so it does not replace
- * Commet's normal service worker.
- */
+// Isolated Vodozemac worker smoke test; does not replace Commet's worker.
+import '/vodozemac_worker_glue.js';
+import '/vodozemac_worker_probe_deferred.js';
 
-let resultPort = null;
+let wasmInitPromise;
 
-self.__vodozemacProbeResult = function (result) {
-  if (resultPort) {
-    resultPort.postMessage(result);
-    resultPort.close();
-    resultPort = null;
-  }
-};
-
-self.addEventListener('message', (event) => {
-  if (event.data?.type !== 'RUN_VODOZEMAC_PROBE') {
-    return;
-  }
-
+self.addEventListener('message', async (event) => {
   const port = event.ports?.[0];
-  if (!port) {
-    return;
-  }
-
-  resultPort = port;
-
+  if (!port || event.data?.type !== 'RUN_VODOZEMAC_PROBE') return;
   try {
-    // The compiled Dart probe is a classic script and invokes main().
-    importScripts('/vodozemac_worker_probe.js');
-  } catch (error) {
-    resultPort?.postMessage(
-      'FAIL: Could not load the compiled Dart probe: ' + String(error),
+    wasmInitPromise ??= self.__vodozemacWasmBindgen(
+      '/vodozemac-probe/nonthreaded/vodozemac_bindings_dart_bg.wasm'
     );
-    resultPort?.close();
-    resultPort = null;
+    await wasmInitPromise;
+    const resultPromise = new Promise((resolve) => {
+      self.__vodozemacProbeResult = resolve;
+    });
+    if (typeof self.__runVodozemacDartProbe !== 'function') {
+      throw new Error('Deferred Dart probe entry point is missing');
+    }
+    self.__runVodozemacDartProbe();
+    port.postMessage(await resultPromise);
+  } catch (error) {
+    port.postMessage('FAIL: ' + error + '\\n' + (error?.stack ?? ''));
+  } finally {
+    port.close();
   }
 });
