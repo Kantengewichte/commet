@@ -297,6 +297,20 @@ self.addEventListener("push", (event) => {
 
     try {
       matrixEvent = await fetchMatrixEvent(databaseId, roomId, eventId);
+    } catch (error) {
+      debugPushEvent("Synapse event lookup failed; checking local event store:", error);
+      try {
+        matrixEvent = await getStoredEvent(databaseId, roomId, eventId);
+      } catch (storedError) {
+        debugPushEvent("Local event lookup failed:", storedError);
+      }
+      if (!matrixEvent) {
+        debugPushEvent("Could not identify Matrix event; notification suppressed");
+        return;
+      }
+    }
+
+    try {
       debugPushEvent("Matrix event received:", matrixEvent.type);
 
       if (matrixEvent.type === "m.room.message") {
@@ -307,6 +321,36 @@ self.addEventListener("push", (event) => {
         senderId = typeof matrixEvent.sender === "string"
           ? matrixEvent.sender
           : null;
+      } else if (matrixEvent.type === "org.matrix.msc3381.poll.start") {
+        const poll = matrixEvent.content?.["m.poll.start"] || {};
+        const question = poll.question;
+        body = typeof question === "string"
+          ? question
+          : typeof question?.["m.text"] === "string"
+            ? question["m.text"]
+            : typeof question?.body === "string"
+              ? question.body
+              : typeof matrixEvent.content?.["m.text"] === "string"
+                ? matrixEvent.content["m.text"]
+                : null;
+        isMessage = !!body;
+        senderId = typeof matrixEvent.sender === "string"
+          ? matrixEvent.sender
+          : null;
+      } else if (
+        matrixEvent.type === "m.room.member" &&
+        matrixEvent.content?.membership === "invite"
+      ) {
+        const inviteState = matrixEvent.unsigned?.invite_room_state || [];
+        const nameEvent = inviteState.find((state) => state.type === "m.room.name");
+        const invitedRoomName = nameEvent?.content?.name;
+        body = typeof invitedRoomName === "string" && invitedRoomName.trim()
+          ? "You were invited to " + invitedRoomName.trim()
+          : "You were invited to a room";
+        isMessage = true;
+        senderId = typeof matrixEvent.sender === "string"
+          ? matrixEvent.sender
+          : null;
       } else if (matrixEvent.type === "m.room.encrypted") {
         try {
           const result = await decryptMatrixEvent(
@@ -314,7 +358,10 @@ self.addEventListener("push", (event) => {
           );
 
           // Megolm can carry encrypted state events too. Only notify for messages.
-          if (result.eventType === "m.room.message") {
+          if (
+            result.eventType === "m.room.message" ||
+            result.eventType === "org.matrix.msc3381.poll.start"
+          ) {
             isMessage = true;
             body = typeof result.body === "string" ? result.body : null;
             senderId = typeof result.senderId === "string"
