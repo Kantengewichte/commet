@@ -5,6 +5,9 @@ set -eu
 # or directly from any working directory.
 SCRIPT_DIR="$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)"
 PROJECT_DIR="$(CDPATH= cd -- "$SCRIPT_DIR/.." && pwd)"
+# Commet is a member of the Dart workspace, so pub writes package_config.json
+# to the workspace root rather than the commet/ package directory.
+WORKSPACE_DIR="$(CDPATH= cd -- "$PROJECT_DIR/.." && pwd)"
 
 VODOZEMAC_TMP="$(mktemp -d "${TMPDIR:-/tmp}/commet-vodozemac.XXXXXX")"
 cleanup() {
@@ -16,13 +19,13 @@ echo "Preparing Vodozemac WebAssembly bindings and Matrix push decryption..."
 
 # The Dart probe is compiled against Commet's resolved package dependencies.
 # Some CI paths run this script before Flutter has created package_config.json.
-if [ ! -f "$PROJECT_DIR/.dart_tool/package_config.json" ]; then
-  echo "Resolving Commet's Dart dependencies..."
+if [ ! -f "$WORKSPACE_DIR/.dart_tool/package_config.json" ]; then
+  echo "Resolving the Dart workspace dependencies..."
   (cd "$PROJECT_DIR" && flutter pub get)
 fi
 
-if [ ! -f "$PROJECT_DIR/.dart_tool/package_config.json" ]; then
-  echo "Flutter did not create .dart_tool/package_config.json." >&2
+if [ ! -f "$WORKSPACE_DIR/.dart_tool/package_config.json" ]; then
+  echo "Flutter did not create the workspace .dart_tool/package_config.json." >&2
   exit 1
 fi
 
