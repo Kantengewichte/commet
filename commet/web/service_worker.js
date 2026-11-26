@@ -262,86 +262,106 @@ self.addEventListener("push", (event) => {
       data = event.data ? event.data.json() : {};
     } catch (error) {
       console.error("[Commet SW] Invalid push payload:", error);
+      return;
     }
-
-    console.log("[Commet SW] Push received:", {
-      roomIdPresent: !!data.room_id,
-      eventIdPresent: !!data.event_id,
-      clientIdPresent: !!data.local_client_id
-    });
 
     const roomId = data.room_id;
     const eventId = data.event_id;
     const databaseId = data.local_client_id;
 
-    let body = "Du hast eine neue Nachricht";
+    // Ignore notifications that cannot be tied to a specific Matrix event.
+    if (!roomId || !eventId || !databaseId) {
+      console.log("[Commet SW] Ignoring push without Matrix event identifiers");
+      return;
+    }
+
+    let body = null;
     let senderId = null;
-    let decrypted = false;
+    let isMessage = false;
+    let matrixEvent = null;
 
     try {
-      const matrixEvent = await fetchMatrixEvent(databaseId, roomId, eventId);
+      matrixEvent = await fetchMatrixEvent(databaseId, roomId, eventId);
 
       console.log("[Commet SW] Synapse event fetch:", {
         success: true,
         type: matrixEvent.type
       });
 
-      if (matrixEvent.type === "m.room.encrypted") {
-        const result = await decryptMatrixEvent(
-          databaseId, roomId, eventId, matrixEvent
-        );
+      if (matrixEvent.type === "m.room.message") {
+        isMessage = true;
+        body = typeof matrixEvent.content?.body === "string"
+          ? matrixEvent.content.body
+          : null;
+        senderId = typeof matrixEvent.sender === "string"
+          ? matrixEvent.sender
+          : null;
+      } else if (matrixEvent.type === "m.room.encrypted") {
+        try {
+          const result = await decryptMatrixEvent(
+            databaseId, roomId, eventId, matrixEvent
+          );
 
-        if (typeof result.body === "string") {
-          body = result.body;
-          decrypted = true;
+          // Megolm can carry encrypted state events too. Only notify for messages.
+          if (result.eventType === "m.room.message") {
+            isMessage = true;
+            body = typeof result.body === "string" ? result.body : null;
+            senderId = typeof result.senderId === "string"
+              ? result.senderId
+              : matrixEvent.sender || null;
+          }
+
+          console.log("[Commet SW] Megolm decryption:", {
+            success: true,
+            eventType: result.eventType,
+            bodyPresent: typeof result.body === "string"
+          });
+        } catch (error) {
+          console.error("[Commet SW] Background decryption failed:", error);
         }
-        senderId = typeof result.senderId === "string"
-          ? result.senderId
-          : typeof matrixEvent.sender === "string"
-            ? matrixEvent.sender
-            : null;
-
-        console.log("[Commet SW] Megolm decryption:", {
-          success: true,
-          eventType: result.eventType,
-          bodyPresent: typeof result.body === "string"
-        });
+      } else {
+        // Membership, invite, name/topic changes and all other state events
+        // must never produce a chat-message notification.
+        console.log("[Commet SW] Ignoring non-message Matrix event:", matrixEvent.type);
+        return;
       }
     } catch (error) {
-      console.error("[Commet SW] Background decryption failed:", error);
+      console.error("[Commet SW] Matrix event fetch failed; suppressing notification:", error);
+      return;
     }
 
-    if (!decrypted) {
+    // If decryption was unavailable, a previously decrypted message in the
+    // local event store is still sufficient to classify and display it.
+    if (!isMessage || typeof body !== "string" || !body.trim()) {
       try {
         const storedEvent = await getStoredEvent(databaseId, roomId, eventId);
-
         if (
           storedEvent?.type === "m.room.message" &&
-          typeof storedEvent.content?.body === "string"
+          typeof storedEvent.content?.body === "string" &&
+          storedEvent.content.body.trim()
         ) {
+          isMessage = true;
           body = storedEvent.content.body;
           senderId = typeof storedEvent.sender === "string"
             ? storedEvent.sender
-            : null;
-          decrypted = true;
+            : senderId;
         }
-
-        console.log("[Commet SW] Event lookup:", {
-          found: !!storedEvent,
-          type: storedEvent?.type ?? null,
-          decrypted
-        });
       } catch (error) {
-        console.error("[Commet SW] IndexedDB lookup failed:", error);
+        console.error("[Commet SW] IndexedDB event lookup failed:", error);
       }
+    }
+
+    // Never fall back to a generic "new message" for unknown/un-decrypted
+    // events. That is what caused invites and room state updates to notify.
+    if (!isMessage || typeof body !== "string" || !body.trim()) {
+      console.log("[Commet SW] Suppressing notification: event is not a confirmed message");
+      return;
     }
 
     const displayName = senderId
       ? await getSenderDisplayName(databaseId, senderId)
       : null;
-    const conversation = roomId
-      ? await getConversationDetails(databaseId, roomId)
-      : { kind: "unknown" };
+    const conversation = await getConversationDetails(databaseId, roomId);
 
     let notificationTitle = "Commet";
     if (displayName) {
@@ -358,18 +378,17 @@ self.addEventListener("push", (event) => {
       body,
       icon: "/icons/Icon-192.png",
       badge: "/favicon-32x32.png",
-      tag: eventId || undefined,
+      tag: eventId,
       renotify: false,
       data: {
         room_id: roomId,
         event_id: eventId,
         local_client_id: databaseId,
-        decrypted
+        decrypted: true
       }
     });
   })());
 });
-
 self.addEventListener("notificationclick", (event) => {
   event.notification.close();
   const data = event.notification.data || {};
