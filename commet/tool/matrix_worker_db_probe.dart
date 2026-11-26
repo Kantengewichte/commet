@@ -84,6 +84,7 @@ Future<void> main() async {
     result = jsonEncode({
       'success': true,
       'body': messageBody is String ? messageBody : null,
+      'senderId': plaintext['sender'],
       'eventType': plaintext['type'],
     });
   } catch (error, stackTrace) {
