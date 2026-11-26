@@ -277,6 +277,14 @@ Future<void> startGui() async {
   String? initialRoomId;
   String? initialClientId;
 
+  // Web Push notification clicks carry their Matrix target in the page URL.
+  // Read it before runApp so MainPage can select the intended account and room.
+  if (kIsWeb) {
+    final parameters = Uri.base.queryParameters;
+    initialRoomId = parameters["notification_room"];
+    initialClientId = parameters["notification_client"];
+  }
+
   initGuiRequirements();
 
   if (PlatformUtils.isAndroid) {
