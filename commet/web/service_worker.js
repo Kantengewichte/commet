@@ -202,6 +202,42 @@ async function fetchMatrixEvent(databaseId, roomId, eventId) {
   return matrixEvent;
 }
 
+async function fetchInviteEvent(databaseId, roomId, eventId) {
+  const credentials = await getMatrixCredentials(databaseId);
+  const baseUrl = credentials.homeserverUrl.endsWith("/")
+    ? credentials.homeserverUrl
+    : credentials.homeserverUrl + "/";
+  const filter = {
+    room: {
+      rooms: [roomId],
+      timeline: { limit: 0 }
+    }
+  };
+  const url = new URL("_matrix/client/v3/sync", baseUrl);
+  url.searchParams.set("timeout", "0");
+  url.searchParams.set("filter", JSON.stringify(filter));
+
+  const response = await fetch(url, {
+    method: "GET",
+    headers: { Authorization: "Bearer " + credentials.token }
+  });
+  if (!response.ok) {
+    throw new Error("Invite sync lookup failed: HTTP " + response.status);
+  }
+
+  const sync = await response.json();
+  const inviteEvents = sync.rooms?.invite?.[roomId]?.invite_state?.events || [];
+  const inviteEvent = inviteEvents.find((state) =>
+    state.event_id === eventId ||
+    (state.type === "m.room.member" &&
+      state.state_key === credentials.userId &&
+      state.content?.membership === "invite")
+  );
+
+  if (!inviteEvent) return null;
+  return { ...inviteEvent, room_id: roomId, event_id: eventId };
+}
+
 async function decryptMatrixEvent(databaseId, roomId, eventId, matrixEvent) {
   const content = matrixEvent.content || {};
   const sessionId = content.session_id;
@@ -303,6 +339,13 @@ self.addEventListener("push", (event) => {
         matrixEvent = await getStoredEvent(databaseId, roomId, eventId);
       } catch (storedError) {
         debugPushEvent("Local event lookup failed:", storedError);
+      }
+      if (!matrixEvent) {
+        try {
+          matrixEvent = await fetchInviteEvent(databaseId, roomId, eventId);
+        } catch (inviteError) {
+          debugPushEvent("Invite sync lookup failed:", inviteError);
+        }
       }
       if (!matrixEvent) {
         debugPushEvent("Could not identify Matrix event; notification suppressed");
