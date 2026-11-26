@@ -1,13 +1,9 @@
 import 'dart:convert';
 import 'dart:js_interop';
 
-import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart'
-    show ExternalLibrary;
 import 'package:matrix/encryption/utils/pickle_key.dart';
 import 'package:vodozemac/vodozemac.dart' as vodozemac;
-import 'package:vodozemac/src/generated/frb_generated.dart'
-    as vodozemac_frb
-    show RustLib;
+import 'matrix_worker_vodozemac_init.dart';
 
 @JS('self.__matrixWorkerDbProbeResult')
 external void reportResult(JSAny? result);
@@ -22,12 +18,7 @@ Future<void> main() async {
 
   try {
     if (!vodozemac.isInitialized()) {
-      await vodozemac_frb.RustLib.init(
-        externalLibrary: const ExternalLibrary(
-          debugInfo: 'Preinitialized in Service Worker',
-          wasmBindgenName: 'wasm_bindgen',
-        ),
-      );
+      await initializeVodozemacForWorker();
     }
 
     if (!vodozemac.isInitialized()) {
