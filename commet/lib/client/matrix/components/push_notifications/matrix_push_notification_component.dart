@@ -27,7 +27,9 @@ class MatrixPushNotificationComponent
     var pushers = await matrixClient.getPushers();
 
     var data = PusherData(
-      format: "event_id_only",
+      // Web push needs the full event: invite events are not accessible from
+      // the room event endpoint before the user has joined the room.
+      format: BuildConfig.WEB ? null : "event_id_only",
       url: pushServer,
       additionalProperties: extraData ?? {},
     );
