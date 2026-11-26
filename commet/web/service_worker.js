@@ -14,14 +14,14 @@ function getNotificationTranslations() {
     return {
       poll: "Umfrage: ",
       invitedToRoom: (roomName) => "Du wurdest zu " + roomName + " eingeladen",
-      invitedToARoom: "Du wurdest in einen Raum eingeladen"
+      genericNotification: "Du hast eine neue Benachrichtigung"
     };
   }
 
   return {
     poll: "Poll: ",
     invitedToRoom: (roomName) => "You were invited to " + roomName,
-    invitedToARoom: "You were invited to a room"
+    genericNotification: "You have a new notification"
   };
 }
 
@@ -453,7 +453,7 @@ self.addEventListener("push", (event) => {
         const translations = getNotificationTranslations();
         body = typeof invitedRoomName === "string" && invitedRoomName.trim()
           ? translations.invitedToRoom(invitedRoomName.trim())
-          : translations.invitedToARoom;
+          : translations.genericNotification;
         isMessage = true;
         senderId = typeof matrixEvent.sender === "string"
           ? matrixEvent.sender
