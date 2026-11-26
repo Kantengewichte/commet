@@ -219,7 +219,7 @@ async function decryptMatrixEvent(databaseId, roomId, eventId, matrixEvent) {
     throw new Error("Inbound Megolm session not found: " + sessionId);
   }
 
-  console.log("[Commet SW] Megolm session lookup:", {
+  debugPushEvent("Megolm session lookup:", {
     found: true,
     roomMatches: session.room_id === roomId,
     sessionMatches: session.session_id === sessionId,
