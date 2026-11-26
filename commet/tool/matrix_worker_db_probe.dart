@@ -85,13 +85,13 @@ Future<void> main() async {
     final pollBody = pollQuestion is String
         ? pollQuestion
         : pollQuestion is Map<String, dynamic>
-            ? (pollQuestion['m.text'] ?? pollQuestion['body'])
-            : messageContent['m.text'];
+        ? (pollQuestion['m.text'] ?? pollQuestion['body'])
+        : messageContent['m.text'];
     final notificationBody = messageBody is String
         ? messageBody
         : pollBody is String
-            ? pollBody
-            : null;
+        ? pollBody
+        : null;
 
     result = jsonEncode({
       'success': true,
