@@ -102,32 +102,26 @@ EOF
 # to invoke it only after the push event and its IndexedDB data are available.
 python3 - "$PROBE_DIR/matrix_worker_db_probe_deferred.js" <<'PY'
 from pathlib import Path
-import re
 import sys
 
 path = Path(sys.argv[1])
 source = path.read_text()
-pattern = re.compile(
-    r'(v\\.currentScript=a\\s*)'
-    r'(var s=A\\.e0\\s*'
-    r'if\\(typeof dartMainRunner==="function"\\)'
-    r'\\{dartMainRunner\\(s,\\[\\]\\)\\}'
-    r'else\\{s\\(\\[\\]\\)\\})'
-)
+original = """v.currentScript=a
+var s=A.e0
+if(typeof dartMainRunner==="function"){dartMainRunner(s,[])}else{s([])}"""
+deferred = """v.currentScript=a
+self.__runMatrixWorkerDbProbe=function(){
+var s=A.e0
+if(typeof dartMainRunner==="function"){dartMainRunner(s,[])}else{s([])}
+}"""
 
-source, replacements = pattern.subn(
-    r'\\1self.__runMatrixWorkerDbProbe=function(){\\2};',
-    source,
-    count=1,
-)
-
-if replacements != 1 or "self.__runMatrixWorkerDbProbe=function()" not in source:
+if source.count(original) != 1:
     raise SystemExit(
-        "Could not patch the Dart probe entry point. "
+        "Could not find the expected Dart probe entry point exactly once. "
         "The Dart compiler output may have changed."
     )
 
-path.write_text(source)
+path.write_text(source.replace(original, deferred, 1))
 PY
 
 echo "Vodozemac WASM and Matrix worker probe prepared."
