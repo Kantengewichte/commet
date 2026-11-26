@@ -263,6 +263,23 @@ async function decryptMatrixEvent(databaseId, roomId, eventId, matrixEvent) {
   return result;
 }
 
+// Temporary diagnostics: Firefox may signal when a push subscription is changed or lost.
+self.addEventListener("pushsubscriptionchange", (event) => {
+  const oldEndpoint = event.oldSubscription?.endpoint ?? null;
+  const newEndpoint = event.newSubscription?.endpoint ?? null;
+
+  console.warn("[Commet SW] pushsubscriptionchange:", {
+    oldEndpoint,
+    newEndpoint,
+    oldExpirationTime: event.oldSubscription?.expirationTime ?? null,
+    newExpirationTime: event.newSubscription?.expirationTime ?? null
+  });
+
+  if (event.waitUntil) {
+    event.waitUntil(Promise.resolve());
+  }
+});
+
 self.addEventListener("push", (event) => {
   event.waitUntil((async () => {
     let data = {};
