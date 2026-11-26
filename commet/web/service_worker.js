@@ -560,23 +560,35 @@ self.addEventListener("notificationclick", (event) => {
   const data = event.notification.data || {};
 
   event.waitUntil((async () => {
+    const targetUrl = new URL("/", self.location.origin);
+    if (typeof data.room_id === "string" && data.room_id) {
+      targetUrl.searchParams.set("notification_room", data.room_id);
+    }
+    if (typeof data.local_client_id === "string" && data.local_client_id) {
+      targetUrl.searchParams.set("notification_client", data.local_client_id);
+    }
+    if (typeof data.event_id === "string" && data.event_id) {
+      targetUrl.searchParams.set("notification_event", data.event_id);
+    }
+
     const clientList = await clients.matchAll({
       type: "window",
       includeUncontrolled: true
     });
 
     for (const client of clientList) {
-      if ("focus" in client) {
-        client.postMessage({
-          type: "matrix_notification_click",
-          room_id: data.room_id,
-          event_id: data.event_id,
-          local_client_id: data.local_client_id
-        });
-        return client.focus();
+      if (new URL(client.url).origin !== self.location.origin) continue;
+
+      // Reload the app with the target room in its startup URL. The Flutter
+      // app reads these parameters before building MainPage.
+      if ("navigate" in client) {
+        const navigatedClient = await client.navigate(targetUrl.href);
+        return (navigatedClient || client).focus();
       }
+
+      return client.focus();
     }
 
-    return clients.openWindow("/");
+    return clients.openWindow(targetUrl.href);
   })());
 });
