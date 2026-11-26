@@ -79,25 +79,37 @@ Future<void> main() async {
     final messageContent =
         plaintext['content'] as Map<String, dynamic>? ?? <String, dynamic>{};
 
-    final messageBody = messageContent['body'];
-    final pollStart = messageContent['m.poll.start'] as Map<String, dynamic>?;
-    final pollQuestion = pollStart?['question'];
-    final pollBody = pollQuestion is String
-        ? pollQuestion
-        : pollQuestion is Map<String, dynamic>
-        ? (pollQuestion['m.text'] ?? pollQuestion['body'])
-        : messageContent['m.text'];
-    final notificationBody = messageBody is String
-        ? messageBody
-        : pollBody is String
-        ? pollBody
-        : null;
+    String? extractNotificationText(dynamic value) {
+      if (value is String) {
+        return value.trim().isEmpty ? null : value;
+      }
+      if (value is Map) {
+        // Matrix rich-text values are commonly represented as { "m.text": "..." }.
+        for (final key in ['m.text', 'body', 'text']) {
+          final candidate = extractNotificationText(value[key]);
+          if (candidate != null) return candidate;
+        }
+      }
+      return null;
+    }
+
+    final messageBody = extractNotificationText(messageContent['body']);
+    final pollStart = messageContent['m.poll.start'] ??
+        messageContent['org.matrix.msc3381.poll.start'];
+    final pollQuestion = pollStart is Map ? pollStart['question'] : null;
+    final pollBody = extractNotificationText(pollQuestion) ??
+        extractNotificationText(messageContent['question']) ??
+        extractNotificationText(messageContent['m.text']);
+    final notificationBody = messageBody ?? pollBody;
+
 
     result = jsonEncode({
       'success': true,
       'body': notificationBody,
       'senderId': plaintext['sender'],
       'eventType': plaintext['type'],
+      'debugContentKeys': messageContent.keys.toList(),
+      'debugPollQuestion': pollQuestion,
     });
   } catch (error, stackTrace) {
     result = jsonEncode({
