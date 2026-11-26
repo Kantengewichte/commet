@@ -7,6 +7,24 @@ function debugPushEvent(...args) {
   }
 }
 
+function getNotificationTranslations() {
+  const language = (self.navigator?.language || "en").toLowerCase();
+
+  if (language.startsWith("de")) {
+    return {
+      poll: "Umfrage: ",
+      invitedToRoom: (roomName) => "Du wurdest zu " + roomName + " eingeladen",
+      invitedToARoom: "Du wurdest in einen Raum eingeladen"
+    };
+  }
+
+  return {
+    poll: "Poll: ",
+    invitedToRoom: (roomName) => "You were invited to " + roomName,
+    invitedToARoom: "You were invited to a room"
+  };
+}
+
 
 importScripts(
   "/vodozemac-probe/vodozemac_worker_glue.js",
@@ -432,9 +450,10 @@ self.addEventListener("push", (event) => {
         const inviteState = matrixEvent.unsigned?.invite_room_state || [];
         const nameEvent = inviteState.find((state) => state.type === "m.room.name");
         const invitedRoomName = nameEvent?.content?.name;
+        const translations = getNotificationTranslations();
         body = typeof invitedRoomName === "string" && invitedRoomName.trim()
-          ? "You were invited to " + invitedRoomName.trim()
-          : "You were invited to a room";
+          ? translations.invitedToRoom(invitedRoomName.trim())
+          : translations.invitedToARoom;
         isMessage = true;
         senderId = typeof matrixEvent.sender === "string"
           ? matrixEvent.sender
@@ -502,7 +521,7 @@ self.addEventListener("push", (event) => {
     }
 
     if (isPoll) {
-      body = "Poll: " + body;
+      body = getNotificationTranslations().poll + body;
     }
 
     const displayName = senderId
