@@ -78,6 +78,86 @@ async function getSenderDisplayName(databaseId, senderId) {
   }
 }
 
+
+async function getRoomState(databaseId, roomId) {
+  const credentials = await getMatrixCredentials(databaseId);
+  const baseUrl = credentials.homeserverUrl.endsWith("/")
+    ? credentials.homeserverUrl
+    : credentials.homeserverUrl + "/";
+  const url = new URL(
+    "_matrix/client/v3/rooms/" + encodeURIComponent(roomId) + "/state",
+    baseUrl
+  );
+  const response = await fetch(url, {
+    headers: { Authorization: "Bearer " + credentials.token }
+  });
+  if (!response.ok) {
+    throw new Error("Room state request failed: HTTP " + response.status);
+  }
+  return response.json();
+}
+
+async function getConversationDetails(databaseId, roomId) {
+  try {
+    const credentials = await getMatrixCredentials(databaseId);
+    const baseUrl = credentials.homeserverUrl.endsWith("/")
+      ? credentials.homeserverUrl
+      : credentials.homeserverUrl + "/";
+    const auth = { Authorization: "Bearer " + credentials.token };
+
+    const [accountResponse, roomState] = await Promise.all([
+      fetch(new URL(
+        "_matrix/client/v3/user/" + encodeURIComponent(credentials.userId) +
+          "/account_data/m.direct",
+        baseUrl
+      ), { headers: auth }),
+      getRoomState(databaseId, roomId)
+    ]);
+
+    let directRoomIds = [];
+    if (accountResponse.ok) {
+      const directAccountData = await accountResponse.json();
+      directRoomIds = Object.values(directAccountData)
+        .flat()
+        .filter((id) => typeof id === "string");
+    }
+
+    const roomNameEvent = roomState.find((state) => state.type === "m.room.name");
+    let roomName = typeof roomNameEvent?.content?.name === "string"
+      ? roomNameEvent.content.name.trim()
+      : "";
+
+    const parentEvent = roomState.find((state) => state.type === "m.space.parent");
+    const serverId = parentEvent?.state_key ||
+      (typeof parentEvent?.content?.via === "string" ? parentEvent.state_key : null);
+
+    if (serverId) {
+      try {
+        const serverState = await getRoomState(databaseId, serverId);
+        const serverNameEvent = serverState.find((state) => state.type === "m.room.name");
+        const serverName = typeof serverNameEvent?.content?.name === "string"
+          ? serverNameEvent.content.name.trim()
+          : serverId;
+        const channelName = roomName
+          ? (roomName.startsWith("#") ? roomName : "#" + roomName)
+          : "#" + roomId;
+        return { kind: "server", roomName: channelName, serverName };
+      } catch (error) {
+        console.warn("[Commet SW] Parent Space lookup failed:", error);
+      }
+    }
+
+    if (directRoomIds.includes(roomId)) {
+      return { kind: "direct" };
+    }
+
+    return { kind: "group", roomName: roomName || null };
+  } catch (error) {
+    console.warn("[Commet SW] Conversation lookup failed:", error);
+    return { kind: "unknown" };
+  }
+}
+
 async function fetchMatrixEvent(databaseId, roomId, eventId) {
   const credentials = await getMatrixCredentials(databaseId);
   const baseUrl = credentials.homeserverUrl.endsWith("/")
@@ -215,7 +295,11 @@ self.addEventListener("push", (event) => {
           body = result.body;
           decrypted = true;
         }
-        senderId = typeof result.senderId === "string" ? result.senderId : null;
+        senderId = typeof result.senderId === "string"
+          ? result.senderId
+          : typeof matrixEvent.sender === "string"
+            ? matrixEvent.sender
+            : null;
 
         console.log("[Commet SW] Megolm decryption:", {
           success: true,
@@ -252,12 +336,25 @@ self.addEventListener("push", (event) => {
       }
     }
 
-    if (senderId) {
-      const displayName = await getSenderDisplayName(databaseId, senderId);
-      body = displayName + ": " + body;
+    const displayName = senderId
+      ? await getSenderDisplayName(databaseId, senderId)
+      : null;
+    const conversation = roomId
+      ? await getConversationDetails(databaseId, roomId)
+      : { kind: "unknown" };
+
+    let notificationTitle = "Commet";
+    if (displayName) {
+      if (conversation.kind === "server" && conversation.serverName && conversation.roomName) {
+        notificationTitle = `${displayName} · ${conversation.serverName} ${conversation.roomName} · Commet`;
+      } else if (conversation.kind === "group" && conversation.roomName) {
+        notificationTitle = `${displayName} · ${conversation.roomName} · Commet`;
+      } else {
+        notificationTitle = `${displayName} · Commet`;
+      }
     }
 
-    await self.registration.showNotification("Commet", {
+    await self.registration.showNotification(notificationTitle, {
       body,
       icon: "/icons/Icon-192.png",
       badge: "/favicon-32x32.png",
