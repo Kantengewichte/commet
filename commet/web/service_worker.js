@@ -364,6 +364,7 @@ self.addEventListener("push", (event) => {
     let body = null;
     let senderId = null;
     let isMessage = false;
+    let isPoll = false;
     let matrixEvent = null;
 
     if (pushedEvent) {
@@ -408,6 +409,7 @@ self.addEventListener("push", (event) => {
           ? matrixEvent.sender
           : null;
       } else if (matrixEvent.type === "org.matrix.msc3381.poll.start") {
+        isPoll = true;
         const poll = matrixEvent.content?.["m.poll.start"] || {};
         const question = poll.question;
         body = typeof question === "string"
@@ -449,6 +451,7 @@ self.addEventListener("push", (event) => {
             result.eventType === "org.matrix.msc3381.poll.start"
           ) {
             isMessage = true;
+            isPoll = result.eventType === "org.matrix.msc3381.poll.start";
             body = typeof result.body === "string" ? result.body : null;
             senderId = typeof result.senderId === "string"
               ? result.senderId
@@ -496,6 +499,10 @@ self.addEventListener("push", (event) => {
     if (!isMessage || typeof body !== "string" || !body.trim()) {
       debugPushEvent("Notification suppressed; not a confirmed message event");
       return;
+    }
+
+    if (isPoll) {
+      body = "📊 Poll: " + body;
     }
 
     const displayName = senderId
