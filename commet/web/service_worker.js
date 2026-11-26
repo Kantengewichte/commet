@@ -45,6 +45,39 @@ async function getMatrixCredentials(databaseId) {
   return { homeserverUrl, token, userId };
 }
 
+async function getSenderDisplayName(databaseId, senderId) {
+  if (!senderId) return null;
+
+  try {
+    const credentials = await getMatrixCredentials(databaseId);
+    const baseUrl = credentials.homeserverUrl.endsWith("/")
+      ? credentials.homeserverUrl
+      : credentials.homeserverUrl + "/";
+    const url = new URL(
+      "_matrix/client/v3/profile/" + encodeURIComponent(senderId),
+      baseUrl
+    );
+
+    const response = await fetch(url, {
+      method: "GET",
+      headers: { Authorization: "Bearer " + credentials.token }
+    });
+
+    if (!response.ok) {
+      console.warn("[Commet SW] Sender profile lookup failed:", response.status);
+      return senderId;
+    }
+
+    const profile = await response.json();
+    return typeof profile.displayname === "string" && profile.displayname.trim()
+      ? profile.displayname
+      : senderId;
+  } catch (error) {
+    console.warn("[Commet SW] Sender profile lookup failed:", error);
+    return senderId;
+  }
+}
+
 async function fetchMatrixEvent(databaseId, roomId, eventId) {
   const credentials = await getMatrixCredentials(databaseId);
   const baseUrl = credentials.homeserverUrl.endsWith("/")
@@ -162,6 +195,7 @@ self.addEventListener("push", (event) => {
     const databaseId = data.local_client_id;
 
     let body = "Du hast eine neue Nachricht";
+    let senderId = null;
     let decrypted = false;
 
     try {
@@ -181,6 +215,7 @@ self.addEventListener("push", (event) => {
           body = result.body;
           decrypted = true;
         }
+        senderId = typeof result.senderId === "string" ? result.senderId : null;
 
         console.log("[Commet SW] Megolm decryption:", {
           success: true,
@@ -201,6 +236,9 @@ self.addEventListener("push", (event) => {
           typeof storedEvent.content?.body === "string"
         ) {
           body = storedEvent.content.body;
+          senderId = typeof storedEvent.sender === "string"
+            ? storedEvent.sender
+            : null;
           decrypted = true;
         }
 
@@ -214,8 +252,15 @@ self.addEventListener("push", (event) => {
       }
     }
 
+    if (senderId) {
+      const displayName = await getSenderDisplayName(databaseId, senderId);
+      body = displayName + ": " + body;
+    }
+
     await self.registration.showNotification("Commet", {
       body,
+      icon: "/icons/Icon-192.png",
+      badge: "/favicon-32x32.png",
       tag: eventId || undefined,
       renotify: false,
       data: {
