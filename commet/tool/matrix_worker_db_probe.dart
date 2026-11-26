@@ -3,6 +3,7 @@ import 'dart:js_interop';
 
 import 'package:matrix/encryption/utils/pickle_key.dart';
 import 'package:vodozemac/vodozemac.dart' as vodozemac;
+
 import 'matrix_worker_vodozemac_init.dart';
 
 @JS('self.__matrixWorkerDbProbeResult')
