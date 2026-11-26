@@ -202,42 +202,6 @@ async function fetchMatrixEvent(databaseId, roomId, eventId) {
   return matrixEvent;
 }
 
-async function fetchInviteEvent(databaseId, roomId, eventId) {
-  const credentials = await getMatrixCredentials(databaseId);
-  const baseUrl = credentials.homeserverUrl.endsWith("/")
-    ? credentials.homeserverUrl
-    : credentials.homeserverUrl + "/";
-  const filter = {
-    room: {
-      rooms: [roomId],
-      timeline: { limit: 0 }
-    }
-  };
-  const url = new URL("_matrix/client/v3/sync", baseUrl);
-  url.searchParams.set("timeout", "0");
-  url.searchParams.set("filter", JSON.stringify(filter));
-
-  const response = await fetch(url, {
-    method: "GET",
-    headers: { Authorization: "Bearer " + credentials.token }
-  });
-  if (!response.ok) {
-    throw new Error("Invite sync lookup failed: HTTP " + response.status);
-  }
-
-  const sync = await response.json();
-  const inviteEvents = sync.rooms?.invite?.[roomId]?.invite_state?.events || [];
-  const inviteEvent = inviteEvents.find((state) =>
-    state.event_id === eventId ||
-    (state.type === "m.room.member" &&
-      state.state_key === credentials.userId &&
-      state.content?.membership === "invite")
-  );
-
-  if (!inviteEvent) return null;
-  return { ...inviteEvent, room_id: roomId, event_id: eventId };
-}
-
 async function decryptMatrixEvent(databaseId, roomId, eventId, matrixEvent) {
   const content = matrixEvent.content || {};
   const sessionId = content.session_id;
@@ -316,8 +280,12 @@ self.addEventListener("push", (event) => {
       hasClientId: !!data.local_client_id
     });
 
-    const roomId = data.room_id;
-    const eventId = data.event_id;
+    // With a full-event pusher, the Matrix gateway includes the event in
+    // the push payload. This is essential for invites, which are not
+    // necessarily retrievable through /rooms/{roomId}/event while not joined.
+    const pushedEvent = data.event || data.notification?.event || null;
+    const roomId = data.room_id || pushedEvent?.room_id;
+    const eventId = data.event_id || pushedEvent?.event_id;
     const databaseId = data.local_client_id;
 
     // Ignore notifications that cannot be tied to a specific Matrix event.
@@ -331,25 +299,23 @@ self.addEventListener("push", (event) => {
     let isMessage = false;
     let matrixEvent = null;
 
-    try {
-      matrixEvent = await fetchMatrixEvent(databaseId, roomId, eventId);
-    } catch (error) {
-      debugPushEvent("Synapse event lookup failed; checking local event store:", error);
+    if (pushedEvent) {
+      matrixEvent = pushedEvent;
+      debugPushEvent("Using full Matrix event from push payload:", matrixEvent.type);
+    } else {
       try {
-        matrixEvent = await getStoredEvent(databaseId, roomId, eventId);
-      } catch (storedError) {
-        debugPushEvent("Local event lookup failed:", storedError);
-      }
-      if (!matrixEvent) {
+        matrixEvent = await fetchMatrixEvent(databaseId, roomId, eventId);
+      } catch (error) {
+        debugPushEvent("Synapse event lookup failed; checking local event store:", error);
         try {
-          matrixEvent = await fetchInviteEvent(databaseId, roomId, eventId);
-        } catch (inviteError) {
-          debugPushEvent("Invite sync lookup failed:", inviteError);
+          matrixEvent = await getStoredEvent(databaseId, roomId, eventId);
+        } catch (storedError) {
+          debugPushEvent("Local event lookup failed:", storedError);
         }
-      }
-      if (!matrixEvent) {
-        debugPushEvent("Could not identify Matrix event; notification suppressed");
-        return;
+        if (!matrixEvent) {
+          debugPushEvent("Could not identify Matrix event; notification suppressed");
+          return;
+        }
       }
     }
 
