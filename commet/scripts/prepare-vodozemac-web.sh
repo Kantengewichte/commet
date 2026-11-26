@@ -15,8 +15,14 @@ trap cleanup EXIT INT TERM
 echo "Preparing Vodozemac WebAssembly bindings and Matrix push decryption..."
 
 # The Dart probe is compiled against Commet's resolved package dependencies.
+# Some CI paths run this script before Flutter has created package_config.json.
 if [ ! -f "$PROJECT_DIR/.dart_tool/package_config.json" ]; then
-  echo "Dart package configuration is missing. Run 'flutter pub get' before web preparation." >&2
+  echo "Resolving Commet's Dart dependencies..."
+  (cd "$PROJECT_DIR" && flutter pub get)
+fi
+
+if [ ! -f "$PROJECT_DIR/.dart_tool/package_config.json" ]; then
+  echo "Flutter did not create .dart_tool/package_config.json." >&2
   exit 1
 fi
 
