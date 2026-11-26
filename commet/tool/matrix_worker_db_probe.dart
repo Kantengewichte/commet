@@ -94,14 +94,15 @@ Future<void> main() async {
     }
 
     final messageBody = extractNotificationText(messageContent['body']);
-    final pollStart = messageContent['m.poll.start'] ??
+    final pollStart =
+        messageContent['m.poll.start'] ??
         messageContent['org.matrix.msc3381.poll.start'];
     final pollQuestion = pollStart is Map ? pollStart['question'] : null;
-    final pollBody = extractNotificationText(pollQuestion) ??
+    final pollBody =
+        extractNotificationText(pollQuestion) ??
         extractNotificationText(messageContent['question']) ??
         extractNotificationText(messageContent['m.text']);
     final notificationBody = messageBody ?? pollBody;
-
 
     result = jsonEncode({
       'success': true,
