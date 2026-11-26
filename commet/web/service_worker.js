@@ -1,3 +1,12 @@
+// Set to true to log each push's Matrix event type and notification decisions.
+const DEBUG_PUSH_EVENTS = false;
+
+function debugPushEvent(...args) {
+  if (DEBUG_PUSH_EVENTS) {
+    console.log("[Commet SW][Push debug]", ...args);
+  }
+}
+
 
 importScripts(
   "/vodozemac-probe/vodozemac_worker_glue.js",
@@ -265,6 +274,12 @@ self.addEventListener("push", (event) => {
       return;
     }
 
+    debugPushEvent("Push payload received", {
+      roomId: data.room_id || null,
+      eventId: data.event_id || null,
+      hasClientId: !!data.local_client_id
+    });
+
     const roomId = data.room_id;
     const eventId = data.event_id;
     const databaseId = data.local_client_id;
@@ -282,11 +297,7 @@ self.addEventListener("push", (event) => {
 
     try {
       matrixEvent = await fetchMatrixEvent(databaseId, roomId, eventId);
-
-      console.log("[Commet SW] Synapse event fetch:", {
-        success: true,
-        type: matrixEvent.type
-      });
+      debugPushEvent("Matrix event received:", matrixEvent.type);
 
       if (matrixEvent.type === "m.room.message") {
         isMessage = true;
@@ -311,22 +322,18 @@ self.addEventListener("push", (event) => {
               : matrixEvent.sender || null;
           }
 
-          console.log("[Commet SW] Megolm decryption:", {
-            success: true,
-            eventType: result.eventType,
-            bodyPresent: typeof result.body === "string"
-          });
+          debugPushEvent("Decrypted event type:", result.eventType);
         } catch (error) {
-          console.error("[Commet SW] Background decryption failed:", error);
+          debugPushEvent("Decryption failed for m.room.encrypted event:", error);
         }
       } else {
         // Membership, invite, name/topic changes and all other state events
         // must never produce a chat-message notification.
-        console.log("[Commet SW] Ignoring non-message Matrix event:", matrixEvent.type);
+        debugPushEvent("Ignored Matrix event:", matrixEvent.type);
         return;
       }
     } catch (error) {
-      console.error("[Commet SW] Matrix event fetch failed; suppressing notification:", error);
+      debugPushEvent("Could not identify Matrix event; notification suppressed:", error);
       return;
     }
 
@@ -347,14 +354,14 @@ self.addEventListener("push", (event) => {
             : senderId;
         }
       } catch (error) {
-        console.error("[Commet SW] IndexedDB event lookup failed:", error);
+        debugPushEvent("IndexedDB fallback lookup failed:", error);
       }
     }
 
     // Never fall back to a generic "new message" for unknown/un-decrypted
     // events. That is what caused invites and room state updates to notify.
     if (!isMessage || typeof body !== "string" || !body.trim()) {
-      console.log("[Commet SW] Suppressing notification: event is not a confirmed message");
+      debugPushEvent("Notification suppressed; not a confirmed message event");
       return;
     }
 
