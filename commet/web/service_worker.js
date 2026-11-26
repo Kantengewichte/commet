@@ -202,6 +202,56 @@ async function fetchMatrixEvent(databaseId, roomId, eventId) {
   return matrixEvent;
 }
 
+// Invites are not always retrievable through /rooms/{roomId}/event because
+// the recipient is not yet joined. Matrix exposes the stripped invite state
+// through /sync instead.
+async function fetchInviteFromSync(databaseId, roomId, eventId) {
+  const credentials = await getMatrixCredentials(databaseId);
+  const baseUrl = credentials.homeserverUrl.endsWith("/")
+    ? credentials.homeserverUrl
+    : credentials.homeserverUrl + "/";
+  const filter = {
+    room: {
+      timeline: { limit: 0 },
+      state: { lazy_load_members: true }
+    }
+  };
+  const url = new URL("_matrix/client/v3/sync", baseUrl);
+  url.searchParams.set("filter", JSON.stringify(filter));
+  url.searchParams.set("timeout", "0");
+
+  const response = await fetch(url, {
+    method: "GET",
+    headers: { Authorization: "Bearer " + credentials.token }
+  });
+  if (!response.ok) {
+    throw new Error("Invite sync request failed: HTTP " + response.status);
+  }
+
+  const sync = await response.json();
+  const inviteRoom = sync.rooms?.invite?.[roomId];
+  const inviteEvents = inviteRoom?.invite_state?.events;
+  if (!Array.isArray(inviteEvents)) return null;
+
+  const membershipEvent = inviteEvents.find((state) =>
+    state.type === "m.room.member" &&
+    state.content?.membership === "invite" &&
+    (!state.event_id || state.event_id === eventId) &&
+    (!state.state_key || state.state_key === credentials.userId)
+  );
+  if (!membershipEvent) return null;
+
+  return {
+    ...membershipEvent,
+    room_id: roomId,
+    event_id: membershipEvent.event_id || eventId,
+    unsigned: {
+      ...(membershipEvent.unsigned || {}),
+      invite_room_state: inviteEvents
+    }
+  };
+}
+
 async function decryptMatrixEvent(databaseId, roomId, eventId, matrixEvent) {
   const content = matrixEvent.content || {};
   const sessionId = content.session_id;
@@ -328,6 +378,16 @@ self.addEventListener("push", (event) => {
           matrixEvent = await getStoredEvent(databaseId, roomId, eventId);
         } catch (storedError) {
           debugPushEvent("Local event lookup failed:", storedError);
+        }
+        if (!matrixEvent) {
+          try {
+            matrixEvent = await fetchInviteFromSync(databaseId, roomId, eventId);
+            if (matrixEvent) {
+              debugPushEvent("Recovered invite event from /sync invite state");
+            }
+          } catch (syncError) {
+            debugPushEvent("Invite /sync fallback failed:", syncError);
+          }
         }
         if (!matrixEvent) {
           debugPushEvent("Could not identify Matrix event; notification suppressed");
