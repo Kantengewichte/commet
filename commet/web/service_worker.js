@@ -502,7 +502,7 @@ self.addEventListener("push", (event) => {
     }
 
     if (isPoll) {
-      body = "📊 Poll: " + body;
+      body = "Poll: " + body;
     }
 
     const displayName = senderId
