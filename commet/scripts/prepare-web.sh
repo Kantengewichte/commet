@@ -14,7 +14,7 @@ cleanup() {
 trap cleanup EXIT INT TERM
 
 # Keep Vodozemac-specific build logic isolated from this shared script.
-"$SCRIPT_DIR/prepare-vodozemac-web.sh"
+sh "$SCRIPT_DIR/prepare-vodozemac-web.sh"
 
 # Setup the LiveKit web worker.
 echo "Preparing LiveKit web worker..."
