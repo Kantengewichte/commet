@@ -26,14 +26,15 @@ if ! command -v wasm-pack >/dev/null 2>&1; then
   cargo install --locked wasm-pack
 fi
 
-rustup target add wasm32-unknown-unknown
+# FRB's web build uses nightly's build-std support on CI.
+rustup toolchain install nightly --component rust-src --target wasm32-unknown-unknown
 
 git clone --depth 1 --branch 0.9.0 \
   https://github.com/famedly/dart-vodozemac.git "$VODOZEMAC_TMP/source"
 
 (
   cd "$VODOZEMAC_TMP/source"
-  flutter_rust_bridge_codegen build-web \
+  RUSTUP_TOOLCHAIN=nightly flutter_rust_bridge_codegen build-web \
     --dart-root dart \
     --rust-root "$(readlink -f rust)" \
     --release \
