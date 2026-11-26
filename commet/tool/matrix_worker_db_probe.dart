@@ -1,4 +1,3 @@
-
 import 'dart:convert';
 import 'dart:js_interop';
 
@@ -35,8 +34,7 @@ Future<void> main() async {
       throw StateError('Vodozemac did not initialize');
     }
 
-    final request =
-        jsonDecode(workerEventJson.toDart) as Map<String, dynamic>;
+    final request = jsonDecode(workerEventJson.toDart) as Map<String, dynamic>;
 
     final expectedRoomId = request['room_id'] as String;
     final expectedEventId = request['event_id'] as String;
@@ -84,12 +82,10 @@ Future<void> main() async {
 
     final decrypted = inbound.decrypt(ciphertext);
 
-    final plaintext =
-        jsonDecode(decrypted.plaintext) as Map<String, dynamic>;
+    final plaintext = jsonDecode(decrypted.plaintext) as Map<String, dynamic>;
 
     final messageContent =
-        plaintext['content'] as Map<String, dynamic>? ??
-            <String, dynamic>{};
+        plaintext['content'] as Map<String, dynamic>? ?? <String, dynamic>{};
 
     final messageBody = messageContent['body'];
 
