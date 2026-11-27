@@ -11,6 +11,7 @@ import 'package:commet/utils/image/lod_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:tiamat/atoms/popup_dialog.dart';
+import 'package:vector_math/vector_math_64.dart';
 
 import 'dart:ui' as ui;
 
@@ -368,7 +369,7 @@ class _LightboxState extends State<Lightbox> with TickerProviderStateMixin {
                             final offsetY =
                                 (constraints.maxHeight - imageHeight) / 2;
                             final nextFitTransform = Matrix4.identity()
-                              ..translateByDouble(offsetX, offsetY, 0, 0);
+                              ..translateByVector3(Vector3(offsetX, offsetY, 0));
 
                             if (fitImageSize != imageSize ||
                                 viewerSize != nextViewerSize) {
