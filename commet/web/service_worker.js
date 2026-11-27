@@ -383,6 +383,7 @@ self.addEventListener("push", (event) => {
     let senderId = null;
     let isMessage = false;
     let isPoll = false;
+    let decryptionUnavailable = false;
     let matrixEvent = null;
 
     if (pushedEvent) {
@@ -480,6 +481,11 @@ self.addEventListener("push", (event) => {
           debugPushEvent("Decrypted event type:", result.eventType);
         } catch (error) {
           debugPushEvent("Decryption failed for m.room.encrypted event:", error);
+          // A missing inbound session prevents us from identifying the message,
+          // but should not make the push disappear. Use neutral fallback text.
+          if (String(error?.message || error).includes("Inbound Megolm session not found:")) {
+            decryptionUnavailable = true;
+          }
         }
       } else {
         // Membership, invite, name/topic changes and all other state events
@@ -513,8 +519,30 @@ self.addEventListener("push", (event) => {
       }
     }
 
-    // Never fall back to a generic "new message" for unknown/un-decrypted
-    // events. That is what caused invites and room state updates to notify.
+    // If an encrypted event cannot be decrypted because its inbound Megolm
+    // session is missing, show a neutral notification instead of suppressing
+    // the push. Keep this fallback specific to the missing-session case so
+    // unrelated encrypted state events do not generate notifications.
+    if (decryptionUnavailable && (!isMessage || typeof body !== "string" || !body.trim())) {
+      await self.registration.showNotification("Commet", {
+        body: getNotificationTranslations().genericNotification,
+        icon: "/icons/Icon-192.png",
+        badge: "/favicon-32x32.png",
+        tag: eventId,
+        renotify: false,
+        data: {
+          room_id: roomId,
+          event_id: eventId,
+          local_client_id: databaseId,
+          decrypted: false
+        }
+      });
+      debugPushEvent("Displayed generic notification because the Megolm session is missing");
+      return;
+    }
+
+    // Never fall back to a generic notification for other unknown/un-decrypted
+    // events. That is what prevents invites and room state updates from notifying.
     if (!isMessage || typeof body !== "string" || !body.trim()) {
       debugPushEvent("Notification suppressed; not a confirmed message event");
       return;
