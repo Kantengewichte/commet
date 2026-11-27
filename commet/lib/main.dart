@@ -24,6 +24,7 @@ import 'package:commet/ui/pages/fatal_error/fatal_error_page.dart';
 import 'package:commet/ui/pages/login/login_page.dart';
 import 'package:commet/ui/pages/main/main_page.dart';
 import 'package:commet/ui/pages/setup/menus/check_for_updates.dart';
+import 'package:commet/ui/pages/setup/menus/web_push_setup.dart';
 import 'package:commet/utils/android_intent_helper.dart';
 import 'package:commet/utils/app_focus_util.dart';
 import 'package:commet/utils/custom_safe_area.dart';
@@ -317,10 +318,15 @@ Future<void> startGui() async {
 
   var initialTheme = await preferences.resolveTheme();
 
-  if (preferences.checkForUpdates.value == true &&
-      UpdateChecker.shouldCheckForUpdates &&
-      !(clientManager!.isLoggedIn())) {
-    FirstTimeSetup.registerPostLoginSetup(UpdateCheckerSetup());
+  if (!(clientManager!.isLoggedIn())) {
+    if (PlatformUtils.isWeb) {
+      if (preferences.webPushSetupCompleted.value == null) {
+        FirstTimeSetup.registerPostLoginSetup(WebPushSetup());
+      }
+    } else if (preferences.checkForUpdates.value == true &&
+        UpdateChecker.shouldCheckForUpdates) {
+      FirstTimeSetup.registerPostLoginSetup(UpdateCheckerSetup());
+    }
   }
 
   if (PlatformUtils.isAndroid) {
