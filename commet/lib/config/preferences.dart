@@ -729,6 +729,11 @@ class Preferences {
     defaultValue: null,
   );
 
+  NullableBoolPreference webPushSetupCompleted = NullableBoolPreference(
+    "web_push_setup_completed",
+    defaultValue: null,
+  );
+
   NullableStringPreference unifiedPushEndpoint = NullableStringPreference(
     "unified_push_endpoint",
     defaultValue: null,

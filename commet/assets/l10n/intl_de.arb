@@ -3307,5 +3307,35 @@
         "description": "Tooltip für die Schaltfläche zum Ändern von Text in den Raumeinstellungen",
         "type": "text",
         "placeholders": {}
+    },
+    "titleEnableWebNotifications": "Benachrichtigungen aktivieren",
+    "@titleEnableWebNotifications": {
+        "description": "Title of the first-login web push notification setup",
+        "type": "text",
+        "placeholders": {}
+    },
+    "descriptionEnableWebNotifications": "Möchtest du, dass Commet dir in diesem Browser Benachrichtigungen sendet, auch wenn Commet geschlossen ist?",
+    "@descriptionEnableWebNotifications": {
+        "description": "Explains browser push notifications during first-login setup",
+        "type": "text",
+        "placeholders": {}
+    },
+    "actionEnableWebNotifications": "Browser-Benachrichtigungen aktivieren",
+    "@actionEnableWebNotifications": {
+        "description": "Button to enable browser push notifications",
+        "type": "text",
+        "placeholders": {}
+    },
+    "statusWebNotificationsEnabled": "Browser-Benachrichtigungen sind aktiviert.",
+    "@statusWebNotificationsEnabled": {
+        "description": "Confirmation that browser push notifications were enabled",
+        "type": "text",
+        "placeholders": {}
+    },
+    "errorEnableWebNotifications": "Browser-Benachrichtigungen konnten nicht aktiviert werden. Du kannst es in den Benachrichtigungseinstellungen erneut versuchen.",
+    "@errorEnableWebNotifications": {
+        "description": "Error shown when browser push notifications could not be enabled",
+        "type": "text",
+        "placeholders": {}
     }
 }
