@@ -11,7 +11,7 @@ import 'package:commet/utils/image/lod_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:tiamat/atoms/popup_dialog.dart';
-import 'package:vector_math/vector_math_64.dart';
+import 'package:vector_math/vector_math_64.dart' hide Colors;
 
 import 'dart:ui' as ui;
 
