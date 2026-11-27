@@ -69,6 +69,8 @@ class _WebPushSetupViewState extends State<WebPushSetupView> {
   bool failed = false;
 
   Future<void> enableNotifications() async {
+    if (loading || enabled) return;
+
     setState(() {
       loading = true;
       failed = false;
@@ -113,7 +115,7 @@ class _WebPushSetupViewState extends State<WebPushSetupView> {
         else
           tiamat.Button(
             text: actionEnableWebNotifications,
-            onTap: loading ? null : enableNotifications,
+            onTap: enableNotifications,
           ),
         if (loading) const Padding(
           padding: EdgeInsets.only(top: 12),
