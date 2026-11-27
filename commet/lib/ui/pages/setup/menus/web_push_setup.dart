@@ -117,10 +117,11 @@ class _WebPushSetupViewState extends State<WebPushSetupView> {
             text: actionEnableWebNotifications,
             onTap: enableNotifications,
           ),
-        if (loading) const Padding(
-          padding: EdgeInsets.only(top: 12),
-          child: CircularProgressIndicator(),
-        ),
+        if (loading)
+          const Padding(
+            padding: EdgeInsets.only(top: 12),
+            child: CircularProgressIndicator(),
+          ),
         if (failed)
           Padding(
             padding: const EdgeInsets.only(top: 12),
