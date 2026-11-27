@@ -26,13 +26,22 @@ We are building a client for [Matrix](https://matrix.org) focused on providing a
 - Search Filters
 - Presence Status selection
 
+# Install
 
-# Translation (Original REPO)
-Help translate to your language on [Weblate](https://hosted.weblate.org/projects/commetchat/commet/)
+## Android (Google Services)
+### Fdroid
+You can add the repo https://fdroid.kantengewichte.de/repo as a Repo in Fdroid, where you can then find the latest version available.
 
-<a href="https://hosted.weblate.org/engage/commetchat/">
-<img src="https://hosted.weblate.org/widget/commetchat/commet/multi-auto.svg" alt="Translation status" />
-</a>
+## Flatpak (Linux)
+Run these commands to add the kantengewichte Repo install the latest release.
+```
+wget https://flatpak.kantengewichte.de/repo.gpg
+flatpak remote-add --if-not-exists --gpg-import=repo.gpg kantengewichte-repo https://flatpak.kantengewichte.de
+flatpak install chat.commet.commetapp
+```
+
+## Windows
+Download the [commet-windows.msi](https://github.com/Kantengewichte/commet/latest/releases/download/commet-windows.msi) from the latest relase and install it. (Windows SmartScreen will probably about an unknown App, which you need to bypass).
 
 # Development
 To build, you require [Flutter](https://flutter.dev), currently v3.47.9 
