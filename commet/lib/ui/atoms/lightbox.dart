@@ -369,7 +369,9 @@ class _LightboxState extends State<Lightbox> with TickerProviderStateMixin {
                             final offsetY =
                                 (constraints.maxHeight - imageHeight) / 2;
                             final nextFitTransform = Matrix4.identity()
-                              ..translateByVector3(Vector3(offsetX, offsetY, 0));
+                              ..translateByVector3(
+                                Vector3(offsetX, offsetY, 0),
+                              );
 
                             if (fitImageSize != imageSize ||
                                 viewerSize != nextViewerSize) {
