@@ -84,7 +84,7 @@ dependencies:
   starfield: 
     git: https://github.com/lagmachine-com/starfield.git
   fuzzy: ^0.5.1
-  sqlite3: ^3.9.1
+  sqlite3: ^3.9.2
   drift: ^2.35.4
   archive: ^4.7.1
   exif: ^3.3.0
