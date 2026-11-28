@@ -21,14 +21,14 @@ class PickerUtils {
         return PickerResultXFile(result);
       }
     } else {
-      FilePickerResult? result = await FilePicker.platform.pickFiles(
+      List<PlatformFile> result = await FilePicker.pickFiles(
         type: FileType.custom,
         allowedExtensions: ['bmp', 'gif', 'jpg', 'jpeg', 'png', 'webp', 'apng'],
       );
 
-      var file = result?.xFiles.firstOrNull;
+      var file = result.firstOrNull;
       if (file != null) {
-        return PickerResultXFile(file);
+        return PickerResultXFile(file.xFile);
       }
     }
 
